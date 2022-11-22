@@ -3,6 +3,7 @@ package com.github.plplmax.grsunotifications
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -29,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Form()
+                    Form(viewModel)
                 }
             }
         }
@@ -38,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Form() {
+private fun Form(viewModel: MainViewModel) {
     var login by rememberSaveable {
         mutableStateOf("")
     }
@@ -57,7 +60,10 @@ private fun Form() {
             },
             singleLine = true
         )
-        Button(onClick = {}, modifier = Modifier.padding(top = 14.dp)) {
+        Button(
+            onClick = { viewModel.startUpdates(login) },
+            modifier = Modifier.padding(top = 14.dp)
+        ) {
             Text(text = stringResource(R.string.start_updates))
         }
     }
@@ -67,6 +73,6 @@ private fun Form() {
 @Composable
 private fun FormPreview() {
     GrsuNotificationsTheme {
-        Form()
+//        Form()
     }
 }
