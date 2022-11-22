@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Grsu Notifications</string>
+    <string name="login">Логин</string>
+    <string name="enter_login">Введите логин</string>
+    <string name="start_updates">Начать обновления</string>
+</resources>

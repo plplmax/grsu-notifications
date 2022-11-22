@@ -3,13 +3,21 @@ package com.github.plplmax.grsunotifications
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,27 +25,48 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GrsuNotificationsTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    Form()
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+private fun Form() {
+    var login by rememberSaveable {
+        mutableStateOf("")
+    }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        TextField(
+            value = login,
+            onValueChange = { login = it },
+            label = { Text(text = stringResource(R.string.login)) },
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.enter_login)
+                )
+            },
+            singleLine = true
+        )
+        Button(onClick = {}, modifier = Modifier.padding(top = 14.dp)) {
+            Text(text = stringResource(R.string.start_updates))
+        }
+    }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun DefaultPreview() {
+private fun FormPreview() {
     GrsuNotificationsTheme {
-        Greeting("Android")
+        Form()
     }
 }
