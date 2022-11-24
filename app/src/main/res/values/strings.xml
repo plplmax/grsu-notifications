@@ -3,4 +3,6 @@
     <string name="login">Login</string>
     <string name="enter_login">Enter the login</string>
     <string name="start_updates">Start updates</string>
+    <string name="channel_name">Schedule</string>
+    <string name="channel_description">Channel for updating a schedule</string>
 </resources>
