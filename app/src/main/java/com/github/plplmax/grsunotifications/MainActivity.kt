@@ -19,10 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.work.WorkManager
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels(factoryProducer = {
+        val deps = (application as App).deps
+        MainViewModel(
+            deps.userRepository,
+            WorkManager.getInstance(applicationContext)
+        ).createFactory()
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

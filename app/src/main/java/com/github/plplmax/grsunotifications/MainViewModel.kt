@@ -1,51 +1,46 @@
 package com.github.plplmax.grsunotifications
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.github.plplmax.grsunotifications.data.ScheduleRepository
+import androidx.work.*
 import com.github.plplmax.grsunotifications.data.UserRepository
-import com.github.plplmax.grsunotifications.data.impl.RemoteScheduleDataSourceImpl
-import com.github.plplmax.grsunotifications.data.impl.RemoteUserDataSourceImpl
-import com.github.plplmax.grsunotifications.data.impl.ScheduleRepositoryImpl
-import com.github.plplmax.grsunotifications.data.impl.UserRepositoryImpl
+import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorker
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import java.text.SimpleDateFormat
-import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainViewModel(
-    httpClient: OkHttpClient = OkHttpClient(),
-    private val userRepository: UserRepository = UserRepositoryImpl(
-        RemoteUserDataSourceImpl(
-            httpClient
-        )
-    ),
-    private val scheduleRepository: ScheduleRepository = ScheduleRepositoryImpl(
-        RemoteScheduleDataSourceImpl(httpClient)
-    )
+    private val userRepository: UserRepository,
+    private val workManager: WorkManager
 ) : ViewModel() {
     fun startUpdates(login: String) {
         viewModelScope.launch {
             val userId = userRepository.idByLogin(login)
             userId.onFailure { println("Failure: $it") }
             userId.onSuccess { id ->
-                val (startDate, endDate) = scheduleRange()
-                val jsonSchedule = scheduleRepository.onWeek(id, startDate, endDate)
+                userRepository.saveId(id)
+                val constraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
 
-                jsonSchedule.onFailure { println("Schedule failure") }
-                jsonSchedule.onSuccess { println(it) }
+                workManager.enqueueUniquePeriodicWork(
+                    "ScheduleUpdate",
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    PeriodicWorkRequestBuilder<ScheduleWorker>(
+                        30, TimeUnit.MINUTES
+                    ).setInitialDelay(30, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .build()
+                )
             }
         }
     }
+}
 
-    private fun scheduleRange(): Pair<String, String> {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy")
-        return dateFormat.format(calendar.time).let { startDate ->
-            calendar.add(Calendar.DATE, 6)
-            Pair(startDate, dateFormat.format(calendar.time))
-        }
+fun <T : ViewModel> T.createFactory(): ViewModelProvider.Factory {
+    val viewModel = this
+    return object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = viewModel as T
     }
 }
