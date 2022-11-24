@@ -1,11 +1,15 @@
 package com.github.plplmax.grsunotifications.data.impl
 
 import com.github.plplmax.grsunotifications.data.Errors
+import com.github.plplmax.grsunotifications.data.LocalUserDataSource
 import com.github.plplmax.grsunotifications.data.RemoteUserDataSource
 import com.github.plplmax.grsunotifications.data.UserRepository
 import java.net.UnknownHostException
 
-class UserRepositoryImpl(private val remote: RemoteUserDataSource) : UserRepository {
+class UserRepositoryImpl(
+    private val remote: RemoteUserDataSource,
+    private val local: LocalUserDataSource
+) : UserRepository {
     override suspend fun idByLogin(login: String): Result<Int> {
         return kotlin.runCatching {
             try {
@@ -20,5 +24,11 @@ class UserRepositoryImpl(private val remote: RemoteUserDataSource) : UserReposit
                 }
             }
         }
+    }
+
+    override suspend fun id(): Int = local.id()
+
+    override fun saveId(id: Int) {
+        local.saveId(id)
     }
 }
