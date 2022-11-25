@@ -28,11 +28,14 @@ class ScheduleWorker(
 
         val oldHash = scheduleRepository.scheduleHash()
         val newHash = hashed(jsonResult.getOrThrow())
+        scheduleRepository.saveScheduleHash(newHash)
 
-        if (oldHash != newHash) {
-            scheduleRepository.saveScheduleHash(newHash)
+        if (oldHash.isEmpty()) {
+            ScheduleNotification(context, text = "Расписание было синхронизировано").send()
+        } else if (oldHash != newHash) {
             ScheduleNotification(context).send()
         }
+
         return Result.success()
     }
 
