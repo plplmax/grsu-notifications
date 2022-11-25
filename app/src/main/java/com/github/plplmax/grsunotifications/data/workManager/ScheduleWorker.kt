@@ -38,13 +38,13 @@ class ScheduleWorker(
 
     private fun scheduleRange(): Pair<String, String> {
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-
         val dateFormat = SimpleDateFormat("dd.MM.yyyy")
-        return dateFormat.format(calendar.time).let { startDate ->
-            calendar.add(Calendar.DATE, 6)
-            Pair(startDate, dateFormat.format(calendar.time))
-        }
+
+        val startDate = dateFormat.format(calendar.time)
+        calendar.add(Calendar.DATE, 6)
+        val endDate = dateFormat.format(calendar.time)
+
+        return Pair(startDate, endDate)
     }
 
     private fun hashed(json: JSONObject): String {
