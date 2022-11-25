@@ -28,9 +28,7 @@ class MainViewModel(
                     ExistingPeriodicWorkPolicy.REPLACE,
                     PeriodicWorkRequestBuilder<ScheduleWorker>(
                         30, TimeUnit.MINUTES
-                    ).setInitialDelay(30, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build()
+                    ).setConstraints(constraints).build()
                 )
             }
         }
