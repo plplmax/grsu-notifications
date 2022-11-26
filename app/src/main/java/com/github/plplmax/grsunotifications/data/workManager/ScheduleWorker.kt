@@ -41,10 +41,12 @@ class ScheduleWorker(
 
     private fun scheduleRange(): Pair<String, String> {
         val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+
         val dateFormat = SimpleDateFormat("dd.MM.yyyy")
 
         val startDate = dateFormat.format(calendar.time)
-        calendar.add(Calendar.DATE, 6)
+        calendar.add(Calendar.DATE, 9)
         val endDate = dateFormat.format(calendar.time)
 
         return Pair(startDate, endDate)
