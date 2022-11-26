@@ -18,6 +18,12 @@ class ScheduleWorker(
     private val scheduleRepository: ScheduleRepository
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
+        val oldHash = scheduleRepository.scheduleHash()
+
+        if (oldHash.isNotEmpty() && isNightNow()) {
+            return Result.success()
+        }
+
         val userId = userRepository.id()
         val (startDate, endDate) = scheduleRange()
         val jsonResult = scheduleRepository.onWeek(userId, startDate, endDate)
@@ -26,7 +32,6 @@ class ScheduleWorker(
             return Result.retry()
         }
 
-        val oldHash = scheduleRepository.scheduleHash()
         val newHash = hashed(jsonResult.getOrThrow())
         scheduleRepository.saveScheduleHash(newHash)
 
@@ -38,6 +43,26 @@ class ScheduleWorker(
 
         return Result.success()
     }
+
+    private fun isNightNow(): Boolean {
+        val now = Calendar.getInstance().time
+        val start = startNightTime()
+        val end = endNightTime()
+
+        return now >= start && now < end
+    }
+
+    private fun currentDateWithTimeOf(hours: Int, minutes: Int = 0, seconds: Int = 0): Date {
+        return Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hours)
+            set(Calendar.MINUTE, minutes)
+            set(Calendar.SECOND, seconds)
+        }.time
+    }
+
+    private fun startNightTime(): Date = currentDateWithTimeOf(hours = 0)
+
+    private fun endNightTime(): Date = currentDateWithTimeOf(hours = 6)
 
     private fun scheduleRange(): Pair<String, String> {
         val calendar = Calendar.getInstance()
