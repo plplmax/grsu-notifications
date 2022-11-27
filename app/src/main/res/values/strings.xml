@@ -5,4 +5,5 @@
     <string name="start_updates">Start updates</string>
     <string name="channel_name">Schedule</string>
     <string name="channel_description">Channel for updating a schedule</string>
+    <string name="something_went_wrong">Something went wrong</string>
 </resources>

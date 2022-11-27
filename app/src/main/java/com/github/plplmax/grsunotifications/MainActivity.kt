@@ -4,10 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -70,13 +68,31 @@ private fun Form(viewModel: MainViewModel) {
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { viewModel.startUpdates(login) })
+            keyboardActions = KeyboardActions(onDone = { viewModel.startUpdates(login) }),
+            isError = viewModel.state is UiState.Failure,
+            supportingText = {
+                val state = viewModel.state
+                Text(
+                    text = if (state is UiState.Failure) {
+                        stringResource(state.id)
+                    } else {
+                        ""
+                    }
+                )
+            }
         )
         Button(
             onClick = { viewModel.startUpdates(login) },
-            modifier = Modifier.padding(top = 14.dp)
+            modifier = Modifier.padding(top = 14.dp),
+            enabled = viewModel.state !is UiState.Loading
         ) {
-            Text(text = stringResource(R.string.start_updates))
+            Row(modifier = Modifier.animateContentSize()) {
+                if (viewModel.state is UiState.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(text = stringResource(R.string.start_updates))
+                }
+            }
         }
     }
 }

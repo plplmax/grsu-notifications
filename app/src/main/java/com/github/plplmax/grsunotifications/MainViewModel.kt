@@ -1,5 +1,9 @@
 package com.github.plplmax.grsunotifications
 
+import androidx.annotation.StringRes
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,23 +17,35 @@ class MainViewModel(
     private val userRepository: UserRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
+    var state: UiState by mutableStateOf(UiState.Initial)
+        private set
+
     fun startUpdates(login: String) {
+        state = UiState.Loading
         viewModelScope.launch {
             val userId = userRepository.idByLogin(login)
-            userId.onFailure { println("Failure: $it") }
+            userId.onFailure {
+                println("Failure: $it")
+                state = UiState.Failure(R.string.something_went_wrong)
+            }
             userId.onSuccess { id ->
                 userRepository.saveId(id)
                 val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
 
-                workManager.enqueueUniquePeriodicWork(
-                    "ScheduleUpdate",
-                    ExistingPeriodicWorkPolicy.REPLACE,
-                    PeriodicWorkRequestBuilder<ScheduleWorker>(
-                        30, TimeUnit.MINUTES
-                    ).setConstraints(constraints).build()
-                )
+                state = try {
+                    workManager.enqueueUniquePeriodicWork(
+                        "ScheduleUpdate",
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        PeriodicWorkRequestBuilder<ScheduleWorker>(
+                            30, TimeUnit.MINUTES
+                        ).setConstraints(constraints).build()
+                    ).await()
+                    UiState.Success
+                } catch (e: Exception) {
+                    UiState.Failure(R.string.something_went_wrong)
+                }
             }
         }
     }
@@ -41,4 +57,11 @@ fun <T : ViewModel> T.createFactory(): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T = viewModel as T
     }
+}
+
+sealed class UiState {
+    object Initial : UiState()
+    object Success : UiState()
+    object Loading : UiState()
+    class Failure(@StringRes val id: Int) : UiState()
 }
