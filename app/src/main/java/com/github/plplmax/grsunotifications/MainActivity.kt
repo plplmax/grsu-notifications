@@ -59,7 +59,10 @@ private fun Form(viewModel: MainViewModel) {
     ) {
         TextField(
             value = login,
-            onValueChange = { login = it },
+            onValueChange = {
+                login = it
+                viewModel.clearError()
+            },
             label = { Text(text = stringResource(R.string.login)) },
             placeholder = {
                 Text(
@@ -68,7 +71,11 @@ private fun Form(viewModel: MainViewModel) {
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { viewModel.startUpdates(login) }),
+            keyboardActions = KeyboardActions(onDone = {
+                if (isSubmitAvailable(viewModel.state, login)) {
+                    viewModel.startUpdates(login)
+                }
+            }),
             isError = viewModel.state is UiState.Failure,
             supportingText = {
                 val state = viewModel.state
@@ -84,7 +91,7 @@ private fun Form(viewModel: MainViewModel) {
         Button(
             onClick = { viewModel.startUpdates(login) },
             modifier = Modifier.padding(top = 14.dp),
-            enabled = viewModel.state !is UiState.Loading
+            enabled = isSubmitAvailable(viewModel.state, login)
         ) {
             Row(modifier = Modifier.animateContentSize()) {
                 if (viewModel.state is UiState.Loading) {
@@ -95,6 +102,10 @@ private fun Form(viewModel: MainViewModel) {
             }
         }
     }
+}
+
+private fun isSubmitAvailable(state: UiState, login: String): Boolean {
+    return state !is UiState.Loading && state !is UiState.Failure && login.isNotBlank()
 }
 
 @Preview

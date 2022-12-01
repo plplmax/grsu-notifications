@@ -12,8 +12,9 @@ class UserRepositoryImpl(
 ) : UserRepository {
     override suspend fun idByLogin(login: String): Result<Int> {
         return kotlin.runCatching {
+            val userId: Int
             try {
-                remote.idByLogin(login)
+                userId = remote.idByLogin(login)
             } catch (e: Exception) {
                 when (e) {
                     is UnknownHostException -> error(Errors.CHECK_INTERNET_CONNECTION)
@@ -23,6 +24,10 @@ class UserRepositoryImpl(
                     }
                 }
             }
+            if (userId == 0) {
+                error(Errors.INVALID_LOGIN)
+            }
+            userId
         }
     }
 

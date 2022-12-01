@@ -7,4 +7,6 @@
     <string name="channel_name">Расписание</string>
     <string name="channel_description">Канал для обновлений расписания</string>
     <string name="something_went_wrong">Что-то пошло не так</string>
+    <string name="check_internet_connection">Проверьте интернет-соединение</string>
+    <string name="invalid_login">Неправильный логин</string>
 </resources>

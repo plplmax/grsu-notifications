@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
+import com.github.plplmax.grsunotifications.data.Errors
 import com.github.plplmax.grsunotifications.data.UserRepository
 import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorker
 import kotlinx.coroutines.launch
@@ -24,10 +25,7 @@ class MainViewModel(
         state = UiState.Loading
         viewModelScope.launch {
             val userId = userRepository.idByLogin(login)
-            userId.onFailure {
-                println("Failure: $it")
-                state = UiState.Failure(R.string.something_went_wrong)
-            }
+            userId.onFailure { state = UiState.Failure(stringResourceForError(it)) }
             userId.onSuccess { id ->
                 userRepository.saveId(id)
                 val constraints = Constraints.Builder()
@@ -48,6 +46,17 @@ class MainViewModel(
                 }
             }
         }
+    }
+
+    @StringRes
+    private fun stringResourceForError(error: Throwable): Int = when (error.message) {
+        Errors.CHECK_INTERNET_CONNECTION.toString() -> R.string.check_internet_connection
+        Errors.INVALID_LOGIN.toString() -> R.string.invalid_login
+        else -> R.string.something_went_wrong
+    }
+
+    fun clearError() {
+        state = UiState.Initial
     }
 }
 
