@@ -6,22 +6,24 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkManager
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels(factoryProducer = {
@@ -37,7 +39,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             GrsuNotificationsTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Form(viewModel)
@@ -53,9 +57,14 @@ private fun Form(viewModel: MainViewModel) {
     var login by rememberSaveable {
         mutableStateOf("")
     }
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(all = 14.dp)
     ) {
         TextField(
             value = login,
@@ -76,14 +85,15 @@ private fun Form(viewModel: MainViewModel) {
                     viewModel.startUpdates(login)
                 }
             }),
-            isError = viewModel.state is UiState.Failure,
+            isError = needShowError(viewModel.state),
             supportingText = {
-                val state = viewModel.state
                 Text(
-                    text = if (state is UiState.Failure) {
-                        stringResource(state.id)
-                    } else {
-                        ""
+                    text = viewModel.state.let { state ->
+                        if (needShowError(state)) {
+                            stringResource(state.id)
+                        } else {
+                            ""
+                        }
                     }
                 )
             }
@@ -95,17 +105,47 @@ private fun Form(viewModel: MainViewModel) {
         ) {
             Row(modifier = Modifier.animateContentSize()) {
                 if (viewModel.state is UiState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
                 } else {
                     Text(text = stringResource(R.string.start_updates))
                 }
             }
         }
+
+        val context = LocalContext.current
+        LaunchedEffect(viewModel.state) {
+            val state = viewModel.state
+            if (needShowError(state, withSnackbar = true))
+                snackbarHostState.showSnackbar(
+                    message = context.getString(state.id),
+                    actionLabel = context.getString(R.string.retry),
+                    duration = SnackbarDuration.Indefinite
+                ).let { action ->
+                    if (action == SnackbarResult.ActionPerformed) {
+                        viewModel.startUpdates(login)
+                    }
+                }
+        }
+    }
+
+    Box(contentAlignment = Alignment.BottomCenter) {
+        SnackbarHost(hostState = snackbarHostState)
     }
 }
 
+@OptIn(ExperimentalContracts::class)
+private fun needShowError(state: UiState, withSnackbar: Boolean = false): Boolean {
+    contract {
+        returns(true) implies (state is UiState.Failure)
+    }
+    return state is UiState.Failure && state.showSnackbar == withSnackbar
+}
+
 private fun isSubmitAvailable(state: UiState, login: String): Boolean {
-    return state !is UiState.Loading && state !is UiState.Failure && login.isNotBlank()
+    return state !is UiState.Loading && !needShowError(state) && login.isNotBlank()
 }
 
 @Preview

@@ -25,7 +25,7 @@ class MainViewModel(
         state = UiState.Loading
         viewModelScope.launch {
             val userId = userRepository.idByLogin(login)
-            userId.onFailure { state = UiState.Failure(stringResourceForError(it)) }
+            userId.onFailure { state = stateForError(it) }
             userId.onSuccess { id ->
                 userRepository.saveId(id)
                 val constraints = Constraints.Builder()
@@ -45,6 +45,14 @@ class MainViewModel(
                     UiState.Failure(R.string.something_went_wrong)
                 }
             }
+        }
+    }
+
+    private fun stateForError(error: Throwable): UiState {
+        return when (val stringRes = stringResourceForError(error)) {
+            R.string.check_internet_connection -> UiState.Failure(stringRes, showSnackbar = true)
+            R.string.something_went_wrong -> UiState.Failure(stringRes, showSnackbar = true)
+            else -> UiState.Failure(stringRes)
         }
     }
 
@@ -72,5 +80,5 @@ sealed class UiState {
     object Initial : UiState()
     object Success : UiState()
     object Loading : UiState()
-    class Failure(@StringRes val id: Int) : UiState()
+    class Failure(@StringRes val id: Int, val showSnackbar: Boolean = false) : UiState()
 }
