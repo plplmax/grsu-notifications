@@ -23,7 +23,20 @@ class LocalUserDataSourceImpl(
         prefs.edit { putInt(PREFS_NAME, id) }
     }
 
+    override fun deleteId() {
+        prefs.edit { remove(PREFS_NAME) }
+    }
+
+    override suspend fun login(): String = withContext(dispatcher) {
+        prefs.getString(LOGIN_KEY, "")!!
+    }
+
+    override fun saveLogin(login: String) {
+        prefs.edit { putString(LOGIN_KEY, login) }
+    }
+
     companion object {
         private const val PREFS_NAME = "user"
+        private const val LOGIN_KEY = "login"
     }
 }

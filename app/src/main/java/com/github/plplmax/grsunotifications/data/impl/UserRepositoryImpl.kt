@@ -36,4 +36,14 @@ class UserRepositoryImpl(
     override fun saveId(id: Int) {
         local.saveId(id)
     }
+
+    override fun deleteId() {
+        local.deleteId()
+    }
+
+    override suspend fun login(): String = local.login()
+
+    override fun saveLogin(login: String) {
+        local.saveLogin(login)
+    }
 }

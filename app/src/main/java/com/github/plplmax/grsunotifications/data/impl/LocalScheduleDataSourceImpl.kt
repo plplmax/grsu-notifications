@@ -19,6 +19,10 @@ class LocalScheduleDataSourceImpl(
         prefs.edit { putString(PREFS_NAME, hash) }
     }
 
+    override fun deleteScheduleHash() {
+        prefs.edit { remove(PREFS_NAME) }
+    }
+
     override suspend fun scheduleHash(): String = withContext(dispatcher) {
         prefs.getString(PREFS_NAME, "")!!
     }

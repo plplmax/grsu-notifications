@@ -4,6 +4,7 @@
     <string name="login">Логин</string>
     <string name="enter_login">Введите логин</string>
     <string name="start_updates">Начать обновления</string>
+    <string name="stop_updates">Остановить обновления</string>
     <string name="channel_name">Расписание</string>
     <string name="channel_description">Канал для обновлений расписания</string>
     <string name="something_went_wrong">Что-то пошло не так</string>

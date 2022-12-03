@@ -9,17 +9,39 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
 import com.github.plplmax.grsunotifications.data.Errors
+import com.github.plplmax.grsunotifications.data.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.UserRepository
 import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorker
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(
     private val userRepository: UserRepository,
+    private val scheduleRepository: ScheduleRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
-    var state: UiState by mutableStateOf(UiState.Initial)
+    var state: UiState by mutableStateOf(UiState.Initial())
         private set
+
+    init {
+        initState()
+    }
+
+    private fun initState() {
+        viewModelScope.launch {
+            val userId = async { userRepository.id() }
+            val login = async { userRepository.login() }
+
+            if (login.await().isNotEmpty()) {
+                state = if (userId.await() == 0) {
+                    UiState.Initial(login.await())
+                } else {
+                    UiState.Updating(login.await())
+                }
+            }
+        }
+    }
 
     fun startUpdates(login: String) {
         state = UiState.Loading
@@ -28,22 +50,37 @@ class MainViewModel(
             userId.onFailure { state = stateForError(it) }
             userId.onSuccess { id ->
                 userRepository.saveId(id)
+                userRepository.saveLogin(login)
                 val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
 
                 state = try {
                     workManager.enqueueUniquePeriodicWork(
-                        "ScheduleUpdate",
+                        WORK_NAME,
                         ExistingPeriodicWorkPolicy.REPLACE,
                         PeriodicWorkRequestBuilder<ScheduleWorker>(
                             30, TimeUnit.MINUTES
                         ).setConstraints(constraints).build()
                     ).await()
-                    UiState.Success
+                    UiState.Updating(login)
                 } catch (e: Exception) {
                     UiState.Failure(R.string.something_went_wrong)
                 }
+            }
+        }
+    }
+
+    fun stopUpdates() {
+        state = UiState.Loading
+        viewModelScope.launch {
+            state = try {
+                workManager.cancelUniqueWork(WORK_NAME).await()
+                userRepository.deleteId()
+                scheduleRepository.deleteScheduleHash()
+                UiState.Initial()
+            } catch (e: Exception) {
+                UiState.Failure(R.string.something_went_wrong)
             }
         }
     }
@@ -64,7 +101,11 @@ class MainViewModel(
     }
 
     fun clearError() {
-        state = UiState.Initial
+        state = UiState.Initial()
+    }
+
+    companion object {
+        private const val WORK_NAME = "ScheduleUpdate"
     }
 }
 
@@ -77,8 +118,8 @@ fun <T : ViewModel> T.createFactory(): ViewModelProvider.Factory {
 }
 
 sealed class UiState {
-    object Initial : UiState()
-    object Success : UiState()
+    class Initial(val login: String = "") : UiState()
+    class Updating(val login: String) : UiState()
     object Loading : UiState()
     class Failure(@StringRes val id: Int, val showSnackbar: Boolean = false) : UiState()
 }

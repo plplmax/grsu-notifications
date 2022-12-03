@@ -32,5 +32,9 @@ class ScheduleRepositoryImpl(
         local.saveScheduleHash(hash)
     }
 
+    override fun deleteScheduleHash() {
+        local.deleteScheduleHash()
+    }
+
     override suspend fun scheduleHash(): String = local.scheduleHash()
 }

@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
         val deps = (application as App).deps
         MainViewModel(
             deps.userRepository,
+            deps.scheduleRepository,
             WorkManager.getInstance(applicationContext)
         ).createFactory()
     })
@@ -58,6 +59,20 @@ private fun Form(viewModel: MainViewModel) {
         mutableStateOf("")
     }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = viewModel.state, block = {
+        viewModel.state.let { state ->
+            login = when (state) {
+                is UiState.Initial -> {
+                    state.login.ifEmpty { login }
+                }
+                is UiState.Updating -> {
+                    state.login
+                }
+                else -> login
+            }
+        }
+    })
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -96,10 +111,17 @@ private fun Form(viewModel: MainViewModel) {
                         }
                     }
                 )
-            }
+            },
+            enabled = viewModel.state !is UiState.Updating && viewModel.state !is UiState.Loading
         )
         Button(
-            onClick = { viewModel.startUpdates(login) },
+            onClick = {
+                if (viewModel.state is UiState.Updating) {
+                    viewModel.stopUpdates()
+                } else {
+                    viewModel.startUpdates(login)
+                }
+            },
             modifier = Modifier.padding(top = 14.dp),
             enabled = isSubmitAvailable(viewModel.state, login)
         ) {
@@ -110,7 +132,15 @@ private fun Form(viewModel: MainViewModel) {
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text(text = stringResource(R.string.start_updates))
+                    Text(
+                        text = stringResource(
+                            if (viewModel.state is UiState.Updating) {
+                                R.string.stop_updates
+                            } else {
+                                R.string.start_updates
+                            }
+                        )
+                    )
                 }
             }
         }
