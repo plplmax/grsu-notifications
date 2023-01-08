@@ -1,11 +1,10 @@
 package com.github.plplmax.grsunotifications.data.impl
 
-import com.github.plplmax.grsunotifications.data.Errors
 import com.github.plplmax.grsunotifications.data.LocalScheduleDataSource
 import com.github.plplmax.grsunotifications.data.RemoteScheduleDataSource
 import com.github.plplmax.grsunotifications.data.ScheduleRepository
+import com.github.plplmax.grsunotifications.data.result.NetworkResultImpl
 import org.json.JSONObject
-import java.net.UnknownHostException
 
 class ScheduleRepositoryImpl(
     private val remote: RemoteScheduleDataSource,
@@ -16,16 +15,7 @@ class ScheduleRepositoryImpl(
         startDate: String,
         endDate: String
     ): Result<JSONObject> {
-        return kotlin.runCatching {
-            try {
-                remote.onWeek(userId, startDate, endDate)
-            } catch (e: Exception) {
-                when (e) {
-                    is UnknownHostException -> error(Errors.CHECK_INTERNET_CONNECTION)
-                    else -> error(Errors.GENERIC_ERROR)
-                }
-            }
-        }
+        return NetworkResultImpl { remote.onWeek(userId, startDate, endDate) }.result()
     }
 
     override fun saveScheduleHash(hash: String) {

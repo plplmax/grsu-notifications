@@ -4,7 +4,7 @@ import com.github.plplmax.grsunotifications.data.Errors
 import com.github.plplmax.grsunotifications.data.LocalUserDataSource
 import com.github.plplmax.grsunotifications.data.RemoteUserDataSource
 import com.github.plplmax.grsunotifications.data.UserRepository
-import java.net.UnknownHostException
+import com.github.plplmax.grsunotifications.data.result.NetworkResultImpl
 
 class UserRepositoryImpl(
     private val remote: RemoteUserDataSource,
@@ -12,18 +12,7 @@ class UserRepositoryImpl(
 ) : UserRepository {
     override suspend fun idByLogin(login: String): Result<Int> {
         return kotlin.runCatching {
-            val userId: Int
-            try {
-                userId = remote.idByLogin(login)
-            } catch (e: Exception) {
-                when (e) {
-                    is UnknownHostException -> error(Errors.CHECK_INTERNET_CONNECTION)
-                    else -> {
-                        println(e)
-                        error(Errors.GENERIC_ERROR)
-                    }
-                }
-            }
+            val userId = NetworkResultImpl { remote.idByLogin(login) }.result().getOrThrow()
             if (userId == 0) {
                 error(Errors.INVALID_LOGIN)
             }
