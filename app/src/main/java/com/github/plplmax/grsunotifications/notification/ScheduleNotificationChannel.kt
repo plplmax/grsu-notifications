@@ -32,6 +32,7 @@ class ScheduleNotificationChannel(
         ).apply {
             description = descriptionText
             enableVibration(true)
+            enableLights(true)
         }
     }
 
