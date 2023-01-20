@@ -10,6 +10,6 @@
     <string name="check_internet_connection">Check internet connection</string>
     <string name="invalid_login">Invalid login</string>
     <string name="retry">Retry</string>
-    <string name="application_wont_work_without_notifications">Application won\'t work without a notification permission</string>
+    <string name="app_cant_work_without_notifications">The app can\'t work without notifications</string>
     <string name="settings">Settings</string>
 </resources>

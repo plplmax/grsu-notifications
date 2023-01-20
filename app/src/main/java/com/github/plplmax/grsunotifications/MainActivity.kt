@@ -248,7 +248,7 @@ private suspend fun showNotificationPermissionSnackbar(
     context: Context
 ) {
     snackbarHostState.showSnackbar(
-        message = context.getString(R.string.application_wont_work_without_notifications),
+        message = context.getString(R.string.app_cant_work_without_notifications),
         actionLabel = context.getString(R.string.settings),
         duration = SnackbarDuration.Long
     ).let { action ->
