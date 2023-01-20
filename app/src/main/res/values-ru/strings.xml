@@ -11,4 +11,6 @@
     <string name="check_internet_connection">Проверьте интернет-соединение</string>
     <string name="invalid_login">Неправильный логин</string>
     <string name="retry">Повторить</string>
+    <string name="application_wont_work_without_notifications">Приложение не может работать без уведомлений</string>
+    <string name="settings">Настройки</string>
 </resources>

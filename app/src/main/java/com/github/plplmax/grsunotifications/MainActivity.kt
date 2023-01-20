@@ -1,8 +1,16 @@
 package com.github.plplmax.grsunotifications
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.provider.Settings.EXTRA_APP_PACKAGE
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
@@ -20,8 +28,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.work.WorkManager
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
+import kotlinx.coroutines.launch
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -31,6 +41,7 @@ class MainActivity : ComponentActivity() {
         MainViewModel(
             deps.userRepository,
             deps.scheduleRepository,
+            deps.notificationCentre,
             WorkManager.getInstance(applicationContext)
         ).createFactory()
     })
@@ -50,8 +61,16 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        if (viewModel.needRequestNotificationsPermission) {
+            viewModel.stopUpdates()
+        }
+    }
 }
 
+@SuppressLint("InlinedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Form(viewModel: MainViewModel) {
@@ -114,12 +133,42 @@ private fun Form(viewModel: MainViewModel) {
             },
             enabled = viewModel.state !is UiState.Updating && viewModel.state !is UiState.Loading
         )
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+        val requestPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                if (isGranted) {
+                    viewModel.startUpdates(login)
+                } else {
+                    coroutineScope.launch {
+                        showNotificationPermissionSnackbar(
+                            snackbarHostState,
+                            context
+                        )
+                    }
+                }
+            }
+        )
         Button(
             onClick = {
                 if (viewModel.state is UiState.Updating) {
                     viewModel.stopUpdates()
                 } else {
-                    viewModel.startUpdates(login)
+                    if (viewModel.needRequestNotificationsPermission) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            coroutineScope.launch {
+                                showNotificationPermissionSnackbar(
+                                    snackbarHostState,
+                                    context
+                                )
+                            }
+                        }
+                    } else {
+                        viewModel.startUpdates(login)
+                    }
                 }
             },
             modifier = Modifier.padding(top = 14.dp),
@@ -145,7 +194,6 @@ private fun Form(viewModel: MainViewModel) {
             }
         }
 
-        val context = LocalContext.current
         LaunchedEffect(viewModel.state) {
             val state = viewModel.state
             if (needShowError(state, withSnackbar = true))
@@ -164,6 +212,32 @@ private fun Form(viewModel: MainViewModel) {
     Box(contentAlignment = Alignment.BottomCenter) {
         SnackbarHost(hostState = snackbarHostState)
     }
+}
+
+private suspend fun showNotificationPermissionSnackbar(
+    snackbarHostState: SnackbarHostState,
+    context: Context
+) {
+    snackbarHostState.showSnackbar(
+        message = context.getString(R.string.application_wont_work_without_notifications),
+        actionLabel = context.getString(R.string.settings),
+        duration = SnackbarDuration.Long
+    ).let { action ->
+        if (action == SnackbarResult.ActionPerformed) {
+            openDeviceNotificationSettings(context)
+        }
+    }
+}
+
+private fun openDeviceNotificationSettings(context: Context) {
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(EXTRA_APP_PACKAGE, context.packageName)
+        }
+    } else {
+        Intent(Settings.ACTION_SETTINGS)
+    }
+    startActivity(context, intent, null)
 }
 
 @OptIn(ExperimentalContracts::class)

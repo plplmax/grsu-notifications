@@ -12,6 +12,7 @@ import com.github.plplmax.grsunotifications.data.Errors
 import com.github.plplmax.grsunotifications.data.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.UserRepository
 import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorker
+import com.github.plplmax.grsunotifications.notification.NotificationCentre
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -19,10 +20,14 @@ import java.util.concurrent.TimeUnit
 class MainViewModel(
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
+    private val notificationCentre: NotificationCentre,
     private val workManager: WorkManager
 ) : ViewModel() {
     var state: UiState by mutableStateOf(UiState.Initial())
         private set
+
+    val needRequestNotificationsPermission: Boolean
+        get() = !notificationCentre.hasNotificationsPermission
 
     init {
         initState()
@@ -78,7 +83,8 @@ class MainViewModel(
                 workManager.cancelUniqueWork(WORK_NAME).await()
                 userRepository.deleteId()
                 scheduleRepository.deleteScheduleHash()
-                UiState.Initial()
+                val login = userRepository.login()
+                UiState.Initial(login)
             } catch (e: Exception) {
                 UiState.Failure(R.string.something_went_wrong)
             }
