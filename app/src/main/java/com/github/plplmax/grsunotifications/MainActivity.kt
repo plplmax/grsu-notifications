@@ -1,5 +1,6 @@
 package com.github.plplmax.grsunotifications
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.provider.Settings.EXTRA_APP_PACKAGE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.animation.animateContentSize
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.work.WorkManager
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -93,6 +96,24 @@ private fun Form(viewModel: MainViewModel) {
         }
     })
 
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewModel.startUpdates(login)
+            } else {
+                coroutineScope.launch {
+                    showNotificationPermissionSnackbar(
+                        snackbarHostState,
+                        context
+                    )
+                }
+            }
+        }
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -116,7 +137,14 @@ private fun Form(viewModel: MainViewModel) {
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = {
                 if (isSubmitAvailable(viewModel.state, login)) {
-                    viewModel.startUpdates(login)
+                    startUpdates(
+                        viewModel,
+                        requestPermissionLauncher,
+                        coroutineScope,
+                        snackbarHostState,
+                        context,
+                        login
+                    )
                 }
             }),
             isError = needShowError(viewModel.state),
@@ -133,42 +161,19 @@ private fun Form(viewModel: MainViewModel) {
             },
             enabled = viewModel.state !is UiState.Updating && viewModel.state !is UiState.Loading
         )
-        val context = LocalContext.current
-        val coroutineScope = rememberCoroutineScope()
-        val requestPermissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-            onResult = { isGranted ->
-                if (isGranted) {
-                    viewModel.startUpdates(login)
-                } else {
-                    coroutineScope.launch {
-                        showNotificationPermissionSnackbar(
-                            snackbarHostState,
-                            context
-                        )
-                    }
-                }
-            }
-        )
         Button(
             onClick = {
                 if (viewModel.state is UiState.Updating) {
                     viewModel.stopUpdates()
                 } else {
-                    if (viewModel.needRequestNotificationsPermission) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            coroutineScope.launch {
-                                showNotificationPermissionSnackbar(
-                                    snackbarHostState,
-                                    context
-                                )
-                            }
-                        }
-                    } else {
-                        viewModel.startUpdates(login)
-                    }
+                    startUpdates(
+                        viewModel,
+                        requestPermissionLauncher,
+                        coroutineScope,
+                        snackbarHostState,
+                        context,
+                        login
+                    )
                 }
             },
             modifier = Modifier.padding(top = 14.dp),
@@ -211,6 +216,30 @@ private fun Form(viewModel: MainViewModel) {
 
     Box(contentAlignment = Alignment.BottomCenter) {
         SnackbarHost(hostState = snackbarHostState)
+    }
+}
+
+private fun startUpdates(
+    viewModel: MainViewModel,
+    requestPermissionLauncher: ActivityResultLauncher<String>,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    context: Context,
+    login: String
+) {
+    if (viewModel.needRequestNotificationsPermission) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            coroutineScope.launch {
+                showNotificationPermissionSnackbar(
+                    snackbarHostState,
+                    context
+                )
+            }
+        }
+    } else {
+        viewModel.startUpdates(login)
     }
 }
 
