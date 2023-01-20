@@ -177,7 +177,16 @@ private fun Form(viewModel: MainViewModel) {
                 }
             },
             modifier = Modifier.padding(top = 14.dp),
-            enabled = isSubmitAvailable(viewModel.state, login)
+            enabled = isSubmitAvailable(viewModel.state, login),
+            colors = kotlin.run {
+                val containerColor = if (viewModel.state is UiState.Updating) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.primary
+                }
+                val contentColor = contentColorFor(backgroundColor = containerColor)
+                ButtonDefaults.buttonColors(containerColor, contentColor)
+            }
         ) {
             Row(modifier = Modifier.animateContentSize()) {
                 if (viewModel.state is UiState.Loading) {
