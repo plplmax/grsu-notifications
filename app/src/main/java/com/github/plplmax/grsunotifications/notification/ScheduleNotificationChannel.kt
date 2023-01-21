@@ -25,7 +25,7 @@ class ScheduleNotificationChannel(
     private val channel: NotificationChannelCompat
         get() = NotificationChannelCompat.Builder(
             CHANNEL_ID,
-            NotificationManagerCompat.IMPORTANCE_DEFAULT
+            NotificationManagerCompat.IMPORTANCE_HIGH
         )
             .setName(context.getString(R.string.channel_name))
             .setDescription(context.getString(R.string.channel_description))
