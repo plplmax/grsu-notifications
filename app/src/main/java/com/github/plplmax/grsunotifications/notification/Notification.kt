@@ -1,5 +1,5 @@
 package com.github.plplmax.grsunotifications.notification
 
 interface Notification {
-    fun send()
+    fun send(channel: NotificationChannel)
 }

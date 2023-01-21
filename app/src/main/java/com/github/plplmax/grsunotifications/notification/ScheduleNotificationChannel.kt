@@ -1,42 +1,75 @@
 package com.github.plplmax.grsunotifications.notification
 
-import android.app.NotificationManager
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.github.plplmax.grsunotifications.R
 
 class ScheduleNotificationChannel(
     private val context: Context,
-    private val manager: NotificationManager
+    private val centre: NotificationCentre
 ) : NotificationChannel {
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun create() {
-        manager.createNotificationChannel(channel())
-    }
+    override val builder: NotificationCompat.Builder
+        get() = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent())
+            .setAutoCancel(true)
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun delete() {
-        manager.deleteNotificationChannel(CHANNEL_ID)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun channel(): android.app.NotificationChannel {
-        val name = context.getString(R.string.channel_name)
-        val descriptionText = context.getString(R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        return android.app.NotificationChannel(
+    private val channel: NotificationChannelCompat
+        get() = NotificationChannelCompat.Builder(
             CHANNEL_ID,
-            name,
-            importance
-        ).apply {
-            description = descriptionText
-            enableVibration(true)
-            enableLights(true)
+            NotificationManagerCompat.IMPORTANCE_DEFAULT
+        )
+            .setName(context.getString(R.string.channel_name))
+            .setDescription(context.getString(R.string.channel_description))
+            .setVibrationEnabled(true)
+            .setLightsEnabled(true)
+            .build()
+
+    override fun create() {
+        this.centre.createChannel(channel)
+    }
+
+    override fun delete() {
+        this.centre.deleteChannel(CHANNEL_ID)
+    }
+
+    override fun send(notification: Notification) {
+        this.centre.send(NOTIFICATION_ID, notification)
+    }
+
+    private fun pendingIntent(): PendingIntent {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            component = ComponentName(
+                COMPONENT_PACKAGE,
+                COMPONENT_CLASS
+            )
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
+        val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        return PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            pendingFlags
+        )
     }
 
     companion object {
-        const val CHANNEL_ID = "1"
+        private const val CHANNEL_ID = "1"
+        private const val NOTIFICATION_ID = 1
+        private const val COMPONENT_PACKAGE = "com.grsu.schedule"
+        private const val COMPONENT_CLASS = "com.grsu.schedule.activities.HomeActivity"
     }
 }

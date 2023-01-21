@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.github.plplmax.grsunotifications.data.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.UserRepository
 import com.github.plplmax.grsunotifications.notification.NotificationCentre
+import com.github.plplmax.grsunotifications.notification.NotificationChannel
 import com.github.plplmax.grsunotifications.notification.ScheduleNotification
 import org.json.JSONObject
 import java.security.MessageDigest
@@ -18,7 +19,8 @@ class ScheduleWorker(
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val notificationCentre: NotificationCentre
+    private val notificationCentre: NotificationCentre,
+    private val notificationChannel: NotificationChannel
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         if (!notificationCentre.hasNotificationsPermission) {
@@ -45,9 +47,9 @@ class ScheduleWorker(
         scheduleRepository.saveScheduleHash(newHash)
 
         if (oldHash.isEmpty()) {
-            ScheduleNotification(context, text = "Расписание было синхронизировано").send()
+            ScheduleNotification(text = "Расписание было синхронизировано").send(notificationChannel)
         } else if (oldHash != newHash) {
-            ScheduleNotification(context).send()
+            ScheduleNotification().send(notificationChannel)
         }
 
         return Result.success()

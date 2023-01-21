@@ -1,7 +1,6 @@
 package com.github.plplmax.grsunotifications
 
 import android.app.Application
-import android.app.NotificationManager
 import android.os.Build
 import androidx.work.Configuration
 import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorkerFactory
@@ -20,7 +19,7 @@ class App : Application(), Configuration.Provider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ScheduleNotificationChannel(
                 applicationContext,
-                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                deps.notificationCentre
             ).create()
         }
     }
@@ -30,7 +29,8 @@ class App : Application(), Configuration.Provider {
             ScheduleWorkerFactory(
                 deps.userRepository,
                 deps.scheduleRepository,
-                deps.notificationCentre
+                deps.notificationCentre,
+                deps.scheduleNotificationChannel
             )
         ).build()
     }
