@@ -2,9 +2,14 @@ package com.github.plplmax.grsunotifications.deps
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import com.github.plplmax.grsunotifications.data.ScheduleRepository
-import com.github.plplmax.grsunotifications.data.UserRepository
-import com.github.plplmax.grsunotifications.data.impl.*
+import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepository
+import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepositoryImpl
+import com.github.plplmax.grsunotifications.data.schedule.local.LocalScheduleDataSourceImpl
+import com.github.plplmax.grsunotifications.data.schedule.remote.RemoteScheduleDataSourceImpl
+import com.github.plplmax.grsunotifications.data.user.UserRepository
+import com.github.plplmax.grsunotifications.data.user.UserRepositoryImpl
+import com.github.plplmax.grsunotifications.data.user.local.LocalUserDataSourceImpl
+import com.github.plplmax.grsunotifications.data.user.remote.RemoteUserDataSourceImpl
 import com.github.plplmax.grsunotifications.notification.GrsuNotificationCentre
 import com.github.plplmax.grsunotifications.notification.NotificationCentre
 import com.github.plplmax.grsunotifications.notification.NotificationChannel

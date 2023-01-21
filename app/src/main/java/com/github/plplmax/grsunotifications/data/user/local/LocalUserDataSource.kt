@@ -1,4 +1,4 @@
-package com.github.plplmax.grsunotifications.data
+package com.github.plplmax.grsunotifications.data.user.local
 
 interface LocalUserDataSource {
     suspend fun id(): Int

@@ -1,9 +1,8 @@
-package com.github.plplmax.grsunotifications.data.impl
+package com.github.plplmax.grsunotifications.data.schedule
 
-import com.github.plplmax.grsunotifications.data.LocalScheduleDataSource
-import com.github.plplmax.grsunotifications.data.RemoteScheduleDataSource
-import com.github.plplmax.grsunotifications.data.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.result.NetworkResultImpl
+import com.github.plplmax.grsunotifications.data.schedule.local.LocalScheduleDataSource
+import com.github.plplmax.grsunotifications.data.schedule.remote.RemoteScheduleDataSource
 import org.json.JSONObject
 
 class ScheduleRepositoryImpl(

@@ -1,4 +1,4 @@
-package com.github.plplmax.grsunotifications.data
+package com.github.plplmax.grsunotifications.data.schedule.remote
 
 import org.json.JSONObject
 

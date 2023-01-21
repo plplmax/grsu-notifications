@@ -1,4 +1,4 @@
-package com.github.plplmax.grsunotifications.data
+package com.github.plplmax.grsunotifications.data.user
 
 interface UserRepository {
     suspend fun idByLogin(login: String): Result<Int>

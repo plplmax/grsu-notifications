@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.github.plplmax.grsunotifications.data.ScheduleRepository
-import com.github.plplmax.grsunotifications.data.UserRepository
+import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepository
+import com.github.plplmax.grsunotifications.data.user.UserRepository
 import com.github.plplmax.grsunotifications.notification.NotificationCentre
 import com.github.plplmax.grsunotifications.notification.NotificationChannel
 

@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
 import com.github.plplmax.grsunotifications.data.Errors
-import com.github.plplmax.grsunotifications.data.ScheduleRepository
-import com.github.plplmax.grsunotifications.data.UserRepository
+import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepository
+import com.github.plplmax.grsunotifications.data.user.UserRepository
 import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorker
 import com.github.plplmax.grsunotifications.notification.NotificationCentre
 import kotlinx.coroutines.async

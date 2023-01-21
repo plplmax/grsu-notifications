@@ -1,10 +1,9 @@
-package com.github.plplmax.grsunotifications.data.impl
+package com.github.plplmax.grsunotifications.data.user
 
 import com.github.plplmax.grsunotifications.data.Errors
-import com.github.plplmax.grsunotifications.data.LocalUserDataSource
-import com.github.plplmax.grsunotifications.data.RemoteUserDataSource
-import com.github.plplmax.grsunotifications.data.UserRepository
 import com.github.plplmax.grsunotifications.data.result.NetworkResultImpl
+import com.github.plplmax.grsunotifications.data.user.local.LocalUserDataSource
+import com.github.plplmax.grsunotifications.data.user.remote.RemoteUserDataSource
 
 class UserRepositoryImpl(
     private val remote: RemoteUserDataSource,

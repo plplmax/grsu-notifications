@@ -1,7 +1,6 @@
-package com.github.plplmax.grsunotifications.data.impl
+package com.github.plplmax.grsunotifications.data.user.remote
 
 import com.github.plplmax.grsunotifications.data.Constants
-import com.github.plplmax.grsunotifications.data.RemoteUserDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -1,9 +1,8 @@
-package com.github.plplmax.grsunotifications.data.impl
+package com.github.plplmax.grsunotifications.data.user.local
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.github.plplmax.grsunotifications.data.LocalUserDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
