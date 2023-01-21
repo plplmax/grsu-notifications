@@ -6,6 +6,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -16,11 +17,15 @@ class GrsuNotificationCentreTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val notificationManager: NotificationManagerCompat = mock()
     private val notificationChannel: NotificationChannelCompat = mock()
+    private lateinit var notificationCentre: GrsuNotificationCentre
+
+    @Before
+    fun before() {
+        this.notificationCentre = GrsuNotificationCentre(context, notificationManager)
+    }
 
     @Test
     fun `when creating a channel should be invoked createNotificationChannel`() {
-        val notificationCentre = GrsuNotificationCentre(context, notificationManager)
-
         notificationCentre.createChannel(notificationChannel)
 
         verify(notificationManager).createNotificationChannel(notificationChannel)
@@ -28,7 +33,6 @@ class GrsuNotificationCentreTest {
 
     @Test
     fun `when deleting a channel should be invoked deleteNotificationChannel`() {
-        val notificationCentre = GrsuNotificationCentre(context, notificationManager)
         val channelId = "1"
 
         notificationCentre.deleteChannel(channelId)
@@ -38,7 +42,6 @@ class GrsuNotificationCentreTest {
 
     @Test
     fun `when sending a notification should be invoked notify`() {
-        val notificationCentre = GrsuNotificationCentre(context, notificationManager)
         val notificationId = 1
         val notification = mock<android.app.Notification>()
 
