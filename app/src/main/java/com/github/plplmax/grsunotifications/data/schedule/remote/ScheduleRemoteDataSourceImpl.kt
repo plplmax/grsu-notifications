@@ -9,10 +9,10 @@ import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
 
-class RemoteScheduleDataSourceImpl(
+class ScheduleRemoteDataSourceImpl(
     private val client: OkHttpClient,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-) : RemoteScheduleDataSource {
+) : ScheduleRemoteDataSource {
     override suspend fun onWeek(userId: Int, startDate: String, endDate: String): JSONObject =
         withContext(dispatcher) {
             val request = Request.Builder()

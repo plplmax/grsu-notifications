@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepositoryImpl
-import com.github.plplmax.grsunotifications.data.schedule.local.LocalScheduleDataSourceImpl
-import com.github.plplmax.grsunotifications.data.schedule.remote.RemoteScheduleDataSourceImpl
+import com.github.plplmax.grsunotifications.data.schedule.local.ScheduleLocalDataSourceImpl
+import com.github.plplmax.grsunotifications.data.schedule.remote.ScheduleRemoteDataSourceImpl
 import com.github.plplmax.grsunotifications.data.user.UserRepository
 import com.github.plplmax.grsunotifications.data.user.UserRepositoryImpl
 import com.github.plplmax.grsunotifications.data.user.local.LocalUserDataSourceImpl
@@ -28,8 +28,8 @@ class Dependencies(context: Context) {
 
     val scheduleRepository: ScheduleRepository by lazy {
         ScheduleRepositoryImpl(
-            RemoteScheduleDataSourceImpl(httpClient),
-            LocalScheduleDataSourceImpl(context)
+            ScheduleRemoteDataSourceImpl(httpClient),
+            ScheduleLocalDataSourceImpl(context)
         )
     }
 

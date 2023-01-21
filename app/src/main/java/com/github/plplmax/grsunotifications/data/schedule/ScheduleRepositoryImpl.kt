@@ -1,13 +1,13 @@
 package com.github.plplmax.grsunotifications.data.schedule
 
 import com.github.plplmax.grsunotifications.data.result.NetworkResultImpl
-import com.github.plplmax.grsunotifications.data.schedule.local.LocalScheduleDataSource
-import com.github.plplmax.grsunotifications.data.schedule.remote.RemoteScheduleDataSource
+import com.github.plplmax.grsunotifications.data.schedule.local.ScheduleLocalDataSource
+import com.github.plplmax.grsunotifications.data.schedule.remote.ScheduleRemoteDataSource
 import org.json.JSONObject
 
 class ScheduleRepositoryImpl(
-    private val remote: RemoteScheduleDataSource,
-    private val local: LocalScheduleDataSource
+    private val remote: ScheduleRemoteDataSource,
+    private val local: ScheduleLocalDataSource
 ) : ScheduleRepository {
     override suspend fun onWeek(
         userId: Int,

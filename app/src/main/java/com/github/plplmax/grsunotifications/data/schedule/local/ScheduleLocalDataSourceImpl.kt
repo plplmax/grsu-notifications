@@ -7,10 +7,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class LocalScheduleDataSourceImpl(
+class ScheduleLocalDataSourceImpl(
     context: Context,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-) : LocalScheduleDataSource {
+) : ScheduleLocalDataSource {
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
