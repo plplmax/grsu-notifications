@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.work.WorkManager
 import com.github.plplmax.grsunotifications.ui.theme.GrsuNotificationsTheme
+import dev.doubledot.doki.ui.DokiActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.contracts.ExperimentalContracts
@@ -81,6 +82,12 @@ private fun Form(viewModel: MainViewModel) {
         mutableStateOf("")
     }
     val snackbarHostState = remember { SnackbarHostState() }
+    var dialogVisible by remember { mutableStateOf(false) }
+
+    AlertDialogProblemWithNotifications(
+        visible = dialogVisible,
+        onDismissRequest = { dialogVisible = false },
+        onConfirm = { dialogVisible = false })
 
     LaunchedEffect(key1 = viewModel.state, block = {
         viewModel.state.let { state ->
@@ -208,6 +215,10 @@ private fun Form(viewModel: MainViewModel) {
             }
         }
 
+        TextButton(onClick = { dialogVisible = true }) {
+            Text(text = stringResource(R.string.have_problems_getting_notifications))
+        }
+
         LaunchedEffect(viewModel.state) {
             val state = viewModel.state
             if (needShowError(state, withSnackbar = true))
@@ -225,6 +236,38 @@ private fun Form(viewModel: MainViewModel) {
 
     Box(contentAlignment = Alignment.BottomCenter) {
         SnackbarHost(hostState = snackbarHostState)
+    }
+}
+
+@Composable
+fun AlertDialogProblemWithNotifications(
+    visible: Boolean = false,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    if (visible) {
+        AlertDialog(
+            text = {
+                Surface(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Text(text = stringResource(R.string.problems_getting_notifications_dialog))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissRequest) {
+                    Text(text = stringResource(R.string.back))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onConfirm()
+                    DokiActivity.start(context)
+                }) {
+                    Text(text = stringResource(R.string._continue))
+                }
+            },
+            onDismissRequest = onDismissRequest
+        )
     }
 }
 

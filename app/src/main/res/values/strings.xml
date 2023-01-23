@@ -12,4 +12,8 @@
     <string name="retry">Retry</string>
     <string name="app_cant_work_without_notifications">The app can\'t work without notifications</string>
     <string name="settings">Settings</string>
+    <string name="have_problems_getting_notifications">Have problems getting notifications?</string>
+    <string name="problems_getting_notifications_dialog">Some manufacturers are trying to extend the battery life of their smartphones by any means.\n\nIt has come to the point that manufacturers have changed the Android operating system so that it does not allow applications to run in the background until users change some smartphone settings.\n\nIf you are faced with the problem that the schedule is changing, and you do not receive notifications about it, then it is recommended to do the steps in the “Solution“ section on the screen that you will see when you click the “Continue“ button.</string>
+    <string name="_continue">Continue</string>
+    <string name="back">Back</string>
 </resources>
