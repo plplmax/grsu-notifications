@@ -183,7 +183,6 @@ private fun Form(viewModel: MainViewModel) {
                     )
                 }
             },
-            modifier = Modifier.padding(top = 14.dp),
             enabled = isSubmitAvailable(viewModel.state, login),
             colors = kotlin.run {
                 val containerColor = if (viewModel.state is UiState.Updating) {
