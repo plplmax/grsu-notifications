@@ -2,11 +2,9 @@ package com.github.plplmax.grsunotifications.data.workManager
 
 import android.content.Context
 import androidx.work.CoroutineWorker
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.user.UserRepository
-import com.github.plplmax.grsunotifications.notification.NotificationCentre
 import com.github.plplmax.grsunotifications.notification.NotificationChannel
 import com.github.plplmax.grsunotifications.notification.ScheduleNotification
 import org.json.JSONObject
@@ -15,20 +13,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class ScheduleWorker(
-    private val context: Context,
+    context: Context,
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val notificationCentre: NotificationCentre,
     private val notificationChannel: NotificationChannel
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
-        if (!notificationCentre.hasNotificationsPermission) {
-            userRepository.deleteId()
-            WorkManager.getInstance(context).cancelWorkById(this.id)
-            return Result.failure()
-        }
-
         val oldHash = scheduleRepository.scheduleHash()
 
         if (oldHash.isNotEmpty() && isNightNow()) {

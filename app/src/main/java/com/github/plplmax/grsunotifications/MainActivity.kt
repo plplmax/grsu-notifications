@@ -65,13 +65,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onStart() {
-        super.onStart()
-        if (viewModel.needRequestNotificationsPermission) {
-            viewModel.stopUpdates()
-        }
-    }
 }
 
 @SuppressLint("InlinedApi")
