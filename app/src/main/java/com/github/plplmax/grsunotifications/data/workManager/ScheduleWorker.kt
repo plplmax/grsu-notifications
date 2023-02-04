@@ -31,6 +31,10 @@ class ScheduleWorker(
         val jsonResult = scheduleRepository.onWeek(userId, startDate, endDate)
 
         if (jsonResult.isFailure) {
+            ScheduleNotification(
+                title = "Ошибка обновления расписания",
+                text = "Попробуем ещё раз..."
+            ).send(notificationChannel)
             return Result.retry()
         }
 
