@@ -20,6 +20,7 @@ class ScheduleNotificationChannel(
             .setSmallIcon(R.drawable.ic_stat_name)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent())
+            .setVibrate(VIBRATION_PATTERN)
             .setAutoCancel(true)
 
     private val channel: NotificationChannelCompat
@@ -29,6 +30,7 @@ class ScheduleNotificationChannel(
         )
             .setName(context.getString(R.string.channel_name))
             .setDescription(context.getString(R.string.channel_description))
+            .setVibrationPattern(VIBRATION_PATTERN)
             .setVibrationEnabled(true)
             .setLightsEnabled(true)
             .build()
@@ -71,5 +73,6 @@ class ScheduleNotificationChannel(
         private const val NOTIFICATION_ID = 1
         private const val COMPONENT_PACKAGE = "com.grsu.schedule"
         private const val COMPONENT_CLASS = "com.grsu.schedule.activities.HomeActivity"
+        private val VIBRATION_PATTERN = longArrayOf(0, 100, 150, 100)
     }
 }
