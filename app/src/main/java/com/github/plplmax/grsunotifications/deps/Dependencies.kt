@@ -14,10 +14,14 @@ import com.github.plplmax.grsunotifications.notification.GrsuNotificationCentre
 import com.github.plplmax.grsunotifications.notification.NotificationCentre
 import com.github.plplmax.grsunotifications.notification.NotificationChannel
 import com.github.plplmax.grsunotifications.notification.ScheduleNotificationChannel
+import com.github.plplmax.grsunotifications.resources.GrsuResources
+import com.github.plplmax.grsunotifications.resources.Resources
 import okhttp3.OkHttpClient
 
 class Dependencies(context: Context) {
     private val httpClient: OkHttpClient by lazy { OkHttpClient() }
+
+    val resources: Resources by lazy { GrsuResources(context) }
 
     val userRepository: UserRepository by lazy {
         UserRepositoryImpl(

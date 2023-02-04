@@ -29,7 +29,8 @@ class App : Application(), Configuration.Provider {
             ScheduleWorkerFactory(
                 deps.userRepository,
                 deps.scheduleRepository,
-                deps.scheduleNotificationChannel
+                deps.scheduleNotificationChannel,
+                deps.resources
             )
         ).build()
     }

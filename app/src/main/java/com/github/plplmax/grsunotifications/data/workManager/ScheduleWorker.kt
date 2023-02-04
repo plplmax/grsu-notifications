@@ -3,10 +3,12 @@ package com.github.plplmax.grsunotifications.data.workManager
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.github.plplmax.grsunotifications.R
 import com.github.plplmax.grsunotifications.data.schedule.ScheduleRepository
 import com.github.plplmax.grsunotifications.data.user.UserRepository
 import com.github.plplmax.grsunotifications.notification.NotificationChannel
 import com.github.plplmax.grsunotifications.notification.ScheduleNotification
+import com.github.plplmax.grsunotifications.resources.Resources
 import org.json.JSONObject
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -17,7 +19,8 @@ class ScheduleWorker(
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val notificationChannel: NotificationChannel
+    private val notificationChannel: NotificationChannel,
+    private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         val oldHash = scheduleRepository.scheduleHash()
@@ -32,8 +35,8 @@ class ScheduleWorker(
 
         if (jsonResult.isFailure) {
             ScheduleNotification(
-                title = "Ошибка обновления расписания",
-                text = "Попробуем ещё раз..."
+                title = resources.string(R.string.schedule_update_error),
+                text = resources.string(R.string.lets_try_again)
             ).send(notificationChannel)
             return Result.retry()
         }
@@ -43,13 +46,13 @@ class ScheduleWorker(
 
         if (oldHash.isEmpty()) {
             ScheduleNotification(
-                title = "Расписание синхронизировано",
-                text = "Вы будете получать уведомления при изменении расписания текущей недели и следующих понедельника, вторника, среды."
+                title = resources.string(R.string.schedule_is_synchronized),
+                text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
         } else if (oldHash != newHash) {
             ScheduleNotification(
-                title = "Расписание обновлено",
-                text = "Нажмите для просмотра расписания"
+                title = resources.string(R.string.schedule_updated),
+                text = resources.string(R.string.tap_to_view_schedule)
             ).send(notificationChannel)
         }
 

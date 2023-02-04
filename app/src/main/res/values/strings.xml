@@ -16,4 +16,10 @@
     <string name="problems_getting_notifications_dialog">Some manufacturers are trying to extend the battery life of their smartphones by any means.\n\nIt has come to the point that manufacturers have changed the Android operating system so that it does not allow applications to run in the background until users change some smartphone settings.\n\nIf you are faced with the problem that the schedule is changing, and you do not receive notifications about it, then it is recommended to do the steps in the “Solution“ section on the screen that you will see when you click the “Continue“ button.</string>
     <string name="_continue">Continue</string>
     <string name="back">Back</string>
+    <string name="schedule_update_error">Schedule update error</string>
+    <string name="lets_try_again">Let\'s try again…</string>
+    <string name="schedule_is_synchronized">The schedule is synchronized</string>
+    <string name="how_application_works">You will receive notifications when the schedule changes for the current week and next Monday, Tuesday, Wednesday.</string>
+    <string name="schedule_updated">The schedule has been updated</string>
+    <string name="tap_to_view_schedule">Tap to view the schedule</string>
 </resources>
