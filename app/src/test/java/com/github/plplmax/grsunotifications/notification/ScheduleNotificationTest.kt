@@ -17,6 +17,7 @@ class ScheduleNotificationTest {
         whenever(channel.builder).thenReturn(builder)
         whenever(builder.setContentTitle(any())).thenReturn(builder)
         whenever(builder.setContentText(any())).thenReturn(builder)
+        whenever(builder.setStyle(any())).thenReturn(builder)
         whenever(builder.build()).thenReturn(androidNotification)
     }
 
@@ -34,6 +35,7 @@ class ScheduleNotificationTest {
         builder.inOrder {
             verify().setContentTitle(eq(TITLE))
             verify().setContentText(eq(TEXT))
+            verify().setStyle(any())
             verify().build()
             Unit
         }
