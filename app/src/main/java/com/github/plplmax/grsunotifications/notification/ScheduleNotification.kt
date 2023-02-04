@@ -1,5 +1,7 @@
 package com.github.plplmax.grsunotifications.notification
 
+import androidx.core.app.NotificationCompat
+
 class ScheduleNotification(
     private val title: String = "Уведомления ГрГУ",
     private val text: String = "Расписание было обновлено",
@@ -8,6 +10,7 @@ class ScheduleNotification(
         channel.builder
             .setContentTitle(this.title)
             .setContentText(this.text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(this.text))
             .build()
             .also(channel::send)
     }
