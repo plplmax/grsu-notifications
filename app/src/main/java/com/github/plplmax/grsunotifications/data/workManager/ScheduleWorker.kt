@@ -42,9 +42,15 @@ class ScheduleWorker(
         scheduleRepository.saveScheduleHash(newHash)
 
         if (oldHash.isEmpty()) {
-            ScheduleNotification(text = "Расписание было синхронизировано").send(notificationChannel)
+            ScheduleNotification(
+                title = "Расписание синхронизировано",
+                text = "Вы будете получать уведомления при изменении расписания текущей недели и следующих понедельника, вторника, среды."
+            ).send(notificationChannel)
         } else if (oldHash != newHash) {
-            ScheduleNotification().send(notificationChannel)
+            ScheduleNotification(
+                title = "Расписание обновлено",
+                text = "Нажмите для просмотра расписания"
+            ).send(notificationChannel)
         }
 
         return Result.success()
