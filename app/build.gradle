@@ -7,7 +7,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.github.plplmax.grsunotifications"
+        applicationId "com.github.plplmax.notifications"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -46,7 +46,7 @@ android {
     testOptions {
         unitTests.includeAndroidResources = true
     }
-    namespace 'com.github.plplmax.grsunotifications'
+    namespace 'com.github.plplmax.notifications'
 }
 
 dependencies {
