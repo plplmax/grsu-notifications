@@ -6,12 +6,16 @@ import androidx.work.Configuration
 import com.github.plplmax.grsunotifications.data.workManager.ScheduleWorkerFactory
 import com.github.plplmax.grsunotifications.deps.Dependencies
 import com.github.plplmax.grsunotifications.notification.ScheduleNotificationChannel
+import timber.log.Timber
 
 class App : Application(), Configuration.Provider {
     val deps: Dependencies by lazy { Dependencies(applicationContext) }
 
     override fun onCreate() {
         super.onCreate()
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
         createNotificationChannel()
     }
 

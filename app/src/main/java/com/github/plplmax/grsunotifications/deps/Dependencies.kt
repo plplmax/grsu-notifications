@@ -17,9 +17,17 @@ import com.github.plplmax.grsunotifications.notification.ScheduleNotificationCha
 import com.github.plplmax.grsunotifications.resources.GrsuResources
 import com.github.plplmax.grsunotifications.resources.Resources
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import timber.log.Timber
 
 class Dependencies(context: Context) {
-    private val httpClient: OkHttpClient by lazy { OkHttpClient() }
+    private val httpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder().addInterceptor(
+            HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }.setLevel(
+                HttpLoggingInterceptor.Level.BASIC
+            )
+        ).build()
+    }
 
     val resources: Resources by lazy { GrsuResources(context) }
 

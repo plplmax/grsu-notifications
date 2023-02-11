@@ -1,6 +1,7 @@
 package com.github.plplmax.grsunotifications.data.result
 
 import com.github.plplmax.grsunotifications.data.Errors
+import timber.log.Timber
 import java.net.UnknownHostException
 
 class NetworkResultImpl<out T>(private val block: suspend () -> T) : NetworkResult<T> {
@@ -9,6 +10,7 @@ class NetworkResultImpl<out T>(private val block: suspend () -> T) : NetworkResu
             try {
                 block()
             } catch (e: Exception) {
+                Timber.e(e)
                 when (e) {
                     is UnknownHostException -> error(Errors.CHECK_INTERNET_CONNECTION)
                     else -> error(Errors.GENERIC_ERROR)
