@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "394525660969",
+    "project_id": "grsu-notifications",
+    "storage_bucket": "grsu-notifications.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394525660969:android:8b9eca76882cb2ac66c938",
+        "android_client_info": {
+          "package_name": "com.github.plplmax.notifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "394525660969-qhvote6vf784m885s7apocprfmk51epe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlNsI1Da7U9RBgXNlBaE1DopMAZaPI-W4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "394525660969-qhvote6vf784m885s7apocprfmk51epe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

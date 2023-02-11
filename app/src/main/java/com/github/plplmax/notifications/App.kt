@@ -6,6 +6,7 @@ import androidx.work.Configuration
 import com.github.plplmax.notifications.data.workManager.ScheduleWorkerFactory
 import com.github.plplmax.notifications.deps.Dependencies
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
+import com.github.plplmax.notifications.timber.CrashlyticsTree
 import timber.log.Timber
 
 class App : Application(), Configuration.Provider {
@@ -15,6 +16,8 @@ class App : Application(), Configuration.Provider {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashlyticsTree())
         }
         createNotificationChannel()
     }
