@@ -30,4 +30,8 @@ class GrsuNotificationCentre(
     override fun send(notificationId: Int, notification: Notification) {
         this.manager.notify(notificationId, notification)
     }
+
+    override fun cancelNotification(id: Int) {
+        this.manager.cancel(id)
+    }
 }

@@ -45,4 +45,13 @@ class ScheduleNotificationChannelTest {
 
         verify(notificationCentre).send(any(), same(notification))
     }
+
+    @Test
+    fun `when canceling notifications cancelNotification should be invoked`() {
+        val notificationId = 1
+
+        channel.cancelNotifications()
+
+        verify(notificationCentre).cancelNotification(notificationId)
+    }
 }

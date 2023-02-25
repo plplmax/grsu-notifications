@@ -42,11 +42,21 @@ class GrsuNotificationCentreTest {
 
     @Test
     fun `when sending a notification should be invoked notify`() {
-        val notificationId = 1
         val notification = mock<android.app.Notification>()
 
-        notificationCentre.send(notificationId, notification)
+        notificationCentre.send(NOTIFICATION_ID, notification)
 
-        verify(notificationManager).notify(notificationId, notification)
+        verify(notificationManager).notify(NOTIFICATION_ID, notification)
+    }
+
+    @Test
+    fun `when canceling a notification should be invoked cancel`() {
+        notificationCentre.cancelNotification(NOTIFICATION_ID)
+
+        verify(notificationManager).cancel(NOTIFICATION_ID)
+    }
+
+    companion object {
+        private const val NOTIFICATION_ID = 1
     }
 }

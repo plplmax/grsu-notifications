@@ -9,4 +9,5 @@ interface NotificationCentre {
     fun createChannel(channel: NotificationChannelCompat)
     fun deleteChannel(id: String)
     fun send(notificationId: Int, notification: Notification)
+    fun cancelNotification(id: Int)
 }
