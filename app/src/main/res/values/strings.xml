@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Grsu Notifications</string>
+    <string name="app_name">Notifications</string>
     <string name="login">Login</string>
     <string name="enter_login">Enter the login</string>
     <string name="stop_updates">Stop updates</string>
