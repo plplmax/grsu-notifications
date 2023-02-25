@@ -47,6 +47,10 @@ class ScheduleNotificationChannel(
         this.centre.send(NOTIFICATION_ID, notification)
     }
 
+    override fun cancelNotifications() {
+        this.centre.cancelNotification(NOTIFICATION_ID)
+    }
+
     private fun pendingIntent(): PendingIntent {
         val intent = Intent(Intent.ACTION_MAIN).apply {
             component = ComponentName(

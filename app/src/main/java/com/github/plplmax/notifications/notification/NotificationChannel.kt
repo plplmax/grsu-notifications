@@ -9,4 +9,5 @@ interface NotificationChannel {
     fun create()
     fun delete()
     fun send(notification: Notification)
+    fun cancelNotifications()
 }

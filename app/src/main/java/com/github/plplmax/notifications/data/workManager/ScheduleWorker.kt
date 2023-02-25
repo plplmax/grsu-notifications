@@ -41,6 +41,8 @@ class ScheduleWorker(
             return Result.retry()
         }
 
+        cancelErrorNotifications()
+
         val newHash = hashed(jsonResult.getOrThrow())
         scheduleRepository.saveScheduleHash(newHash)
 
@@ -57,6 +59,12 @@ class ScheduleWorker(
         }
 
         return Result.success()
+    }
+
+    private fun cancelErrorNotifications() {
+        if (this.runAttemptCount > 0) {
+            notificationChannel.cancelNotifications()
+        }
     }
 
     private fun isNightNow(): Boolean {
