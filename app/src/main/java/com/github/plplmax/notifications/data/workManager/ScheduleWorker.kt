@@ -22,6 +22,9 @@ class ScheduleWorker(
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
+    private val errorNotificationExists: Boolean
+        get() = this.runAttemptCount > 0
+
     override suspend fun doWork(): Result {
         val oldHash = scheduleRepository.scheduleHash()
 
@@ -34,11 +37,13 @@ class ScheduleWorker(
         val jsonResult = scheduleRepository.onWeek(userId, startDate, endDate)
 
         if (jsonResult.isFailure) {
-            ScheduleNotification(
-                title = resources.string(R.string.schedule_update_error),
-                text = resources.string(R.string.lets_try_again),
-                type = ScheduleNotification.Type.FAILED
-            ).send(notificationChannel)
+            if (!errorNotificationExists) {
+                ScheduleNotification(
+                    title = resources.string(R.string.schedule_update_error),
+                    text = resources.string(R.string.lets_try_again),
+                    type = ScheduleNotification.Type.FAILED
+                ).send(notificationChannel)
+            }
             return Result.retry()
         }
 
