@@ -6,13 +6,13 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.notification.NotificationChannel
+import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
 
 class ScheduleWorkerFactory(
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val notificationChannel: NotificationChannel,
+    private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : WorkerFactory() {
     override fun createWorker(

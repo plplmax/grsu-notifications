@@ -24,7 +24,7 @@ class App : Application(), Configuration.Provider {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ScheduleNotificationChannel(
+            ScheduleNotificationChannel.Base(
                 applicationContext,
                 deps.notificationCentre
             ).create()

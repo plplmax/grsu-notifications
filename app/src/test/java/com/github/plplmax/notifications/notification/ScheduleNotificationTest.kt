@@ -13,7 +13,7 @@ class ScheduleNotificationTest {
 
     @Before
     fun before() {
-        this.notification = ScheduleNotification(TITLE, TEXT)
+        this.notification = ScheduleNotification(TITLE, TEXT, TYPE)
         whenever(channel.builder).thenReturn(builder)
         whenever(builder.setContentTitle(any())).thenReturn(builder)
         whenever(builder.setContentText(any())).thenReturn(builder)
@@ -25,7 +25,7 @@ class ScheduleNotificationTest {
     fun `when sending notification should use send`() {
         notification.send(channel)
 
-        verify(channel).send(any())
+        verify(channel).send(eq(TYPE.id), any())
     }
 
     @Test
@@ -45,11 +45,12 @@ class ScheduleNotificationTest {
     fun `when sending notification should send notification from builder`() {
         notification.send(channel)
 
-        verify(channel).send(androidNotification)
+        verify(channel).send(TYPE.id, androidNotification)
     }
 
     companion object {
         private const val TITLE = "TITLE"
         private const val TEXT = "TEXT"
+        private val TYPE = ScheduleNotification.Type.SUCCESSFUL
     }
 }

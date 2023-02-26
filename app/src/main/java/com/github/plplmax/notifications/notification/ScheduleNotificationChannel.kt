@@ -11,72 +11,79 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.github.plplmax.notifications.R
 
-class ScheduleNotificationChannel(
-    private val context: Context,
-    private val centre: NotificationCentre
-) : NotificationChannel {
-    override val builder: NotificationCompat.Builder
-        get() = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_stat_name)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent())
-            .setVibrate(VIBRATION_PATTERN)
-            .setAutoCancel(true)
+interface ScheduleNotificationChannel : NotificationChannel {
+    fun cancelFailedNotifications()
 
-    private val channel: NotificationChannelCompat
-        get() = NotificationChannelCompat.Builder(
-            CHANNEL_ID,
-            NotificationManagerCompat.IMPORTANCE_HIGH
-        )
-            .setName(context.getString(R.string.channel_name))
-            .setDescription(context.getString(R.string.channel_description))
-            .setVibrationPattern(VIBRATION_PATTERN)
-            .setVibrationEnabled(true)
-            .setLightsEnabled(true)
-            .build()
+    class Base(
+        private val context: Context,
+        private val centre: NotificationCentre
+    ) : ScheduleNotificationChannel {
+        override val builder: NotificationCompat.Builder
+            get() = NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent())
+                .setVibrate(VIBRATION_PATTERN)
+                .setAutoCancel(true)
 
-    override fun create() {
-        this.centre.createChannel(channel)
-    }
-
-    override fun delete() {
-        this.centre.deleteChannel(CHANNEL_ID)
-    }
-
-    override fun send(notification: Notification) {
-        this.centre.send(NOTIFICATION_ID, notification)
-    }
-
-    override fun cancelNotifications() {
-        this.centre.cancelNotification(NOTIFICATION_ID)
-    }
-
-    private fun pendingIntent(): PendingIntent {
-        val intent = Intent(Intent.ACTION_MAIN).apply {
-            component = ComponentName(
-                COMPONENT_PACKAGE,
-                COMPONENT_CLASS
+        private val channel: NotificationChannelCompat
+            get() = NotificationChannelCompat.Builder(
+                CHANNEL_ID,
+                NotificationManagerCompat.IMPORTANCE_HIGH
             )
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-        return PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            pendingFlags
-        )
-    }
+                .setName(context.getString(R.string.channel_name))
+                .setDescription(context.getString(R.string.channel_description))
+                .setVibrationPattern(VIBRATION_PATTERN)
+                .setVibrationEnabled(true)
+                .setLightsEnabled(true)
+                .build()
 
-    companion object {
-        private const val CHANNEL_ID = "1"
-        private const val NOTIFICATION_ID = 1
-        private const val COMPONENT_PACKAGE = "com.grsu.schedule"
-        private const val COMPONENT_CLASS = "com.grsu.schedule.activities.HomeActivity"
-        private val VIBRATION_PATTERN = longArrayOf(0, 100, 150, 100)
+        override fun create() {
+            this.centre.createChannel(channel)
+        }
+
+        override fun delete() {
+            this.centre.deleteChannel(CHANNEL_ID)
+        }
+
+        override fun send(id: Int, notification: Notification) {
+            this.centre.send(id, notification)
+        }
+
+        override fun cancelNotification(id: Int) {
+            this.centre.cancelNotification(id)
+        }
+
+        override fun cancelFailedNotifications() {
+            this.cancelNotification(ScheduleNotification.Type.FAILED.id)
+        }
+
+        private fun pendingIntent(): PendingIntent {
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                component = ComponentName(
+                    COMPONENT_PACKAGE,
+                    COMPONENT_CLASS
+                )
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+            return PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                pendingFlags
+            )
+        }
+
+        companion object {
+            private const val CHANNEL_ID = "1"
+            private const val COMPONENT_PACKAGE = "com.grsu.schedule"
+            private const val COMPONENT_CLASS = "com.grsu.schedule.activities.HomeActivity"
+            private val VIBRATION_PATTERN = longArrayOf(0, 100, 150, 100)
+        }
     }
 }
