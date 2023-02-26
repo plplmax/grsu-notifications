@@ -10,11 +10,9 @@ class UserRepositoryImpl(
     private val local: LocalUserDataSource
 ) : UserRepository {
     override suspend fun idByLogin(login: String): Result<Int> {
-        return kotlin.runCatching {
-            val userId = NetworkResultImpl { remote.idByLogin(login) }.result().getOrThrow()
-            if (userId == 0) {
-                error(Errors.INVALID_LOGIN)
-            }
+        val result = NetworkResultImpl { remote.idByLogin(login) }.result()
+        return result.mapCatching { userId ->
+            if (userId == 0) error(Errors.INVALID_LOGIN)
             userId
         }
     }
