@@ -12,7 +12,6 @@ import com.github.plplmax.notifications.data.user.local.LocalUserDataSourceImpl
 import com.github.plplmax.notifications.data.user.remote.RemoteUserDataSourceImpl
 import com.github.plplmax.notifications.notification.GrsuNotificationCentre
 import com.github.plplmax.notifications.notification.NotificationCentre
-import com.github.plplmax.notifications.notification.NotificationChannel
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.GrsuResources
 import com.github.plplmax.notifications.resources.Resources
@@ -49,7 +48,7 @@ class Dependencies(context: Context) {
         GrsuNotificationCentre(context, NotificationManagerCompat.from(context))
     }
 
-    val scheduleNotificationChannel: NotificationChannel by lazy {
-        ScheduleNotificationChannel(context, notificationCentre)
+    val scheduleNotificationChannel: ScheduleNotificationChannel by lazy {
+        ScheduleNotificationChannel.Base(context, notificationCentre)
     }
 }

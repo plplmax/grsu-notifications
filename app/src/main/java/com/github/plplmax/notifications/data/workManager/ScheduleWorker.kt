@@ -6,8 +6,8 @@ import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.notification.NotificationChannel
 import com.github.plplmax.notifications.notification.ScheduleNotification
+import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
 import org.json.JSONObject
 import java.security.MessageDigest
@@ -19,7 +19,7 @@ class ScheduleWorker(
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val notificationChannel: NotificationChannel,
+    private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
@@ -36,12 +36,13 @@ class ScheduleWorker(
         if (jsonResult.isFailure) {
             ScheduleNotification(
                 title = resources.string(R.string.schedule_update_error),
-                text = resources.string(R.string.lets_try_again)
+                text = resources.string(R.string.lets_try_again),
+                type = ScheduleNotification.Type.FAILED
             ).send(notificationChannel)
             return Result.retry()
         }
 
-        cancelErrorNotifications()
+        notificationChannel.cancelFailedNotifications()
 
         val newHash = hashed(jsonResult.getOrThrow())
         scheduleRepository.saveScheduleHash(newHash)
@@ -59,12 +60,6 @@ class ScheduleWorker(
         }
 
         return Result.success()
-    }
-
-    private fun cancelErrorNotifications() {
-        if (this.runAttemptCount > 0) {
-            notificationChannel.cancelNotifications()
-        }
     }
 
     private fun isNightNow(): Boolean {

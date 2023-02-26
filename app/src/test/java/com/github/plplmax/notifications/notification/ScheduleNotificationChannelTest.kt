@@ -7,20 +7,18 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.same
-import org.mockito.kotlin.verify
+import org.mockito.kotlin.*
 
 @RunWith(AndroidJUnit4::class)
 class ScheduleNotificationChannelTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val notificationCentre: NotificationCentre = mock()
-    private lateinit var channel: ScheduleNotificationChannel
+    private val notificationId = ScheduleNotification.Type.SUCCESSFUL.id
+    private lateinit var channel: ScheduleNotificationChannel.Base
 
     @Before
     fun before() {
-        channel = ScheduleNotificationChannel(context, notificationCentre)
+        channel = ScheduleNotificationChannel.Base(context, notificationCentre)
     }
 
     @Test
@@ -41,17 +39,24 @@ class ScheduleNotificationChannelTest {
     fun `when sending a notification should be invoked send`() {
         val notification = mock<android.app.Notification>()
 
-        channel.send(notification)
+        channel.send(notificationId, notification)
 
-        verify(notificationCentre).send(any(), same(notification))
+        verify(notificationCentre).send(eq(notificationId), same(notification))
     }
 
     @Test
-    fun `when canceling notifications cancelNotification should be invoked`() {
-        val notificationId = 1
-
-        channel.cancelNotifications()
+    fun `when canceling notification cancelNotification should be invoked`() {
+        channel.cancelNotification(notificationId)
 
         verify(notificationCentre).cancelNotification(notificationId)
+    }
+
+    @Test
+    fun `when canceling failed notifications cancelNotification should be invoked`() {
+        val channelSpy = spy(channel)
+
+        channelSpy.cancelFailedNotifications()
+
+        verify(channelSpy).cancelNotification(ScheduleNotification.Type.FAILED.id)
     }
 }
