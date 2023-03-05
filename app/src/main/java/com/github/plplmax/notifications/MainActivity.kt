@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -32,8 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.work.WorkManager
+import com.github.plplmax.notifications.data.Constants
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
-import dev.doubledot.doki.ui.DokiActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.contracts.ExperimentalContracts
@@ -253,7 +254,7 @@ fun AlertDialogProblemWithNotifications(
             confirmButton = {
                 TextButton(onClick = {
                     onConfirm()
-                    DokiActivity.start(context)
+                    openDontKillMyApp(context)
                 }) {
                     Text(text = stringResource(R.string._continue))
                 }
@@ -323,6 +324,13 @@ private fun needShowError(state: UiState, withSnackbar: Boolean = false): Boolea
 
 private fun isSubmitAvailable(state: UiState, login: String): Boolean {
     return state !is UiState.Loading && !needShowError(state) && login.isNotBlank()
+}
+
+private fun openDontKillMyApp(context: Context) {
+    val url =
+        "${Constants.DONT_KILL_BASE_URL}/${Constants.MANUFACTURER}?app=${context.getString(R.string.app_name)}#user-solution"
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    context.startActivity(intent)
 }
 
 @Preview
