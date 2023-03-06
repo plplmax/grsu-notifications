@@ -29,7 +29,10 @@ jobs:
     - name: Decode Keystore
       env:
         ENCODED_STRING: ${{ secrets.KEYSTORE }}
-      run: echo $ENCODED_STRING | base64 -di > app/keystore/upload-keystore.jks
+        KEYSTORE_PATH: app/keystore
+      run: |
+        mkdir ${KEYSTORE_PATH}
+        echo $ENCODED_STRING | base64 -di > "${KEYSTORE_PATH}"/upload-keystore.jks
       
     - name: Build
       run: ./gradlew build
