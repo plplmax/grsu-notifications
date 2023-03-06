@@ -26,10 +26,10 @@ jobs:
       run: chmod +x gradlew
       
     - name: Build
-      run: ./gradlew buildRelease
+      run: ./gradlew build
           
     - name: Bundle
-      run: ./gradlew bundleRelease
+      run: ./gradlew bundle
       
   release:
     runs-on: ubuntu-22.04
@@ -60,14 +60,14 @@ jobs:
         echo $ENCODED_STRING | base64 -di > "${KEYSTORE_PATH}"/upload-keystore.jks
       
     - name: Build
-      run: ./gradlew buildRelease
+      run: ./gradlew build
       env:
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           
     - name: Bundle
-      run: ./gradlew bundleRelease
+      run: ./gradlew bundle
       env:
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
