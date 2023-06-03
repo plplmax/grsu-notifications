@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
+import com.github.plplmax.notifications.data.schedule.models.Day
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.notification.ScheduleNotification
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
@@ -12,7 +13,8 @@ import com.github.plplmax.notifications.resources.Resources
 import org.json.JSONObject
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 class ScheduleWorker(
     context: Context,
@@ -26,17 +28,17 @@ class ScheduleWorker(
         get() = this.runAttemptCount > 0
 
     override suspend fun doWork(): Result {
-        val oldHash = scheduleRepository.scheduleHash()
+        val oldSchedules = scheduleRepository.schedule()
 
-        if (oldHash.isNotEmpty() && isNightNow()) {
+        if (oldSchedules.isNotEmpty() && isNightNow()) {
             return Result.success()
         }
 
         val userId = userRepository.id()
         val (startDate, endDate) = scheduleRange()
-        val jsonResult = scheduleRepository.onWeek(userId, startDate, endDate)
+        val newSchedulesResult = scheduleRepository.onWeek(userId, startDate, endDate)
 
-        if (jsonResult.isFailure) {
+        if (newSchedulesResult.isFailure) {
             if (!errorNotificationExists) {
                 ScheduleNotification(
                     title = resources.string(R.string.schedule_update_error),
@@ -47,17 +49,53 @@ class ScheduleWorker(
             return Result.retry()
         }
 
+        // @todo rename variables schedule to days where is needed
+        val updatedSchedule = newSchedulesResult.getOrThrow().days
+
+        val firstDiffedSchedule = updatedSchedule.map { schedule ->
+            val foundMatches =
+                oldSchedules.first().days.find { it.date == schedule.date } ?: kotlin.run {
+                    return@map Day(
+                        schedule.date,
+                        schedule.lessons.map { it.copy(isAdded = true) })
+                }
+
+            val addedLessons =
+                (schedule.lessons - foundMatches.lessons.toSet()).map { it.copy(isAdded = true) }
+            val deletedLessons =
+                (foundMatches.lessons - schedule.lessons.toSet()).map { it.copy(isDeleted = true) }
+            // @todo do not create day with empty list
+            Day(
+                schedule.date,
+                // @todo sorted by time start is dangerous, because timestart is string
+                (addedLessons + deletedLessons).sortedBy { it.timeStart })
+        }
+
+        val secondDiffedSchedule = mutableListOf<Day>()
+
+        oldSchedules.first().days.forEach { schedule ->
+            updatedSchedule.find { it.date == schedule.date } ?: kotlin.run {
+                secondDiffedSchedule.add(
+                    Day(
+                        schedule.date,
+                        schedule.lessons.map { it.copy(isDeleted = true) })
+                )
+            }
+        }
+
+        val resultDiffedSchedule = firstDiffedSchedule + secondDiffedSchedule
+
         notificationChannel.cancelFailedNotifications()
 
-        val newHash = hashed(jsonResult.getOrThrow())
-        scheduleRepository.saveScheduleHash(newHash)
+        scheduleRepository.deleteSchedule()
+        scheduleRepository.save(newSchedulesResult.getOrThrow())
 
-        if (oldHash.isEmpty()) {
+        if (oldSchedules.isEmpty()) {
             ScheduleNotification(
                 title = resources.string(R.string.schedule_is_synchronized),
                 text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
-        } else if (oldHash != newHash) {
+        } else if (resultDiffedSchedule.isNotEmpty()) {
             ScheduleNotification(
                 title = resources.string(R.string.schedule_updated),
                 text = resources.string(R.string.tap_to_view_schedule)

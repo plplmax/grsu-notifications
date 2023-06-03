@@ -2,8 +2,11 @@ package com.github.plplmax.notifications.data.schedule
 
 import com.github.plplmax.notifications.data.result.NetworkResultImpl
 import com.github.plplmax.notifications.data.schedule.local.ScheduleLocalDataSource
+import com.github.plplmax.notifications.data.schedule.models.Schedule
+import com.github.plplmax.notifications.data.schedule.models.ScheduleRealm
+import com.github.plplmax.notifications.data.schedule.models.toData
+import com.github.plplmax.notifications.data.schedule.models.toRealm
 import com.github.plplmax.notifications.data.schedule.remote.ScheduleRemoteDataSource
-import org.json.JSONObject
 
 class ScheduleRepositoryImpl(
     private val remote: ScheduleRemoteDataSource,
@@ -13,17 +16,19 @@ class ScheduleRepositoryImpl(
         userId: Int,
         startDate: String,
         endDate: String
-    ): Result<JSONObject> {
+    ): Result<Schedule> {
         return NetworkResultImpl { remote.onWeek(userId, startDate, endDate) }.result()
     }
 
-    override fun saveScheduleHash(hash: String) {
-        local.saveScheduleHash(hash)
+    override suspend fun save(schedule: Schedule) {
+        local.insert(schedule.toRealm())
     }
 
-    override fun deleteScheduleHash() {
-        local.deleteScheduleHash()
+    override suspend fun deleteSchedule() {
+        local.deleteSchedule()
     }
 
-    override suspend fun scheduleHash(): String = local.scheduleHash()
+    override suspend fun schedule(): List<Schedule> {
+        return local.schedule().map(ScheduleRealm::toData)
+    }
 }

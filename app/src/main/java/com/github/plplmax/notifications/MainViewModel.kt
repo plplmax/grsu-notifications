@@ -82,7 +82,7 @@ class MainViewModel(
             state = try {
                 workManager.cancelUniqueWork(WORK_NAME).await()
                 userRepository.deleteId()
-                scheduleRepository.deleteScheduleHash()
+                scheduleRepository.deleteSchedule()
                 val login = userRepository.login()
                 UiState.Initial(login)
             } catch (e: Exception) {

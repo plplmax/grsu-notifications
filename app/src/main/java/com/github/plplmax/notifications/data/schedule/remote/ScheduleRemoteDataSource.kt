@@ -1,7 +1,7 @@
 package com.github.plplmax.notifications.data.schedule.remote
 
-import org.json.JSONObject
+import com.github.plplmax.notifications.data.schedule.models.Schedule
 
 interface ScheduleRemoteDataSource {
-    suspend fun onWeek(userId: Int, startDate: String, endDate: String): JSONObject
+    suspend fun onWeek(userId: Int, startDate: String, endDate: String): Schedule
 }
