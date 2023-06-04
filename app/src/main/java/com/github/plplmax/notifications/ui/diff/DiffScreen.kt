@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,11 +31,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.github.plplmax.notifications.data.schedule.models.Day
+import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
+import com.github.plplmax.notifications.data.schedule.models.Lesson
+import com.github.plplmax.notifications.data.schedule.models.Teacher
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
+
+@Composable
+fun DiffScreen(viewModel: DiffViewModel = viewModel()) {
+    // @todo move id to the function's parameters
+    val id = "test-id"
+    LaunchedEffect(id) {
+        viewModel.loadScheduleById(id)
+    }
+    when (val state = viewModel.state) {
+        // @todo show spinner while loading
+        is DiffViewModel.UiState.Loaded -> DiffContent(state.schedule)
+        is DiffViewModel.UiState.Error -> Text("Error occurred: ${state.text}")
+        is DiffViewModel.UiState.Loading -> Text("Loading...")
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DiffScreen() {
+fun DiffContent(schedule: DiffedSchedule) {
+    // @todo make synchronization between tabs and pager
     var selectedTab by remember { mutableStateOf(0) }
     Column {
         ScrollableTabRow(
@@ -53,62 +75,65 @@ fun DiffScreen() {
             }
         }
         HorizontalPager(
-            pageCount = 3,
+            pageCount = schedule.days.size,
             contentPadding = PaddingValues(14.dp),
             pageSpacing = 4.dp,
             modifier = Modifier.verticalScroll(rememberScrollState())
-        ) {
+        ) { index ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                ScheduleCard()
-                ScheduleCard()
-                ScheduleCard()
-                ScheduleCard()
-                ScheduleCard()
-                ScheduleCard()
-                ScheduleCard()
+                schedule.days[index].lessons.forEach {
+                    ScheduleCard(it)
+                }
             }
         }
     }
 }
 
 @Composable
-fun ScheduleCard() {
+fun ScheduleCard(lesson: Lesson) {
+    val cardBackground = if (lesson.isAdded) {
+        Color.Green.copy(alpha = 0.2f)
+    } else {
+        Color.Red.copy(alpha = 0.2f)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
     ) {
-        Row(modifier = Modifier.padding(8.dp)) {
+        Row(
+            modifier = Modifier
+                .background(cardBackground)
+                .padding(8.dp)
+        ) {
             Column(
                 modifier = Modifier.weight(0.2f),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                DiffText(text = "11:40")
-                DiffText(text = "13:00")
+                DiffText(text = lesson.timeStart)
+                DiffText(text = lesson.timeEnd)
             }
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp)
             ) {
-                DiffText(text = "- Основы декларативного программирования")
-                DiffText(text = "+ Администрирование информационных систем")
+                DiffText(text = lesson.title)
                 DiffText(
-                    text = "+ Дейцева Анна Геннадьевна",
+                    text = lesson.teacher.fullname,
                     style = MaterialTheme.typography.titleSmall
                 )
-                DiffText(text = "Ожешко, 22, 220", style = MaterialTheme.typography.titleSmall)
+                DiffText(
+                    text = "${lesson.address}, ${lesson.room}",
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
             Column(modifier = Modifier.weight(0.3f)) {
                 DiffText(
-                    text = "- Экзамен (в письменной форме)",
-                    style = MaterialTheme.typography.titleSmall
-                )
-                DiffText(
-                    text = "+ Экзамен (в устной форме)",
+                    text = lesson.type,
                     style = MaterialTheme.typography.titleSmall
                 )
             }
@@ -136,10 +161,41 @@ fun DiffText(text: String, style: TextStyle = LocalTextStyle.current) {
 
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun DiffScreenPreview() {
+fun DiffContentPreview() {
     GrsuNotificationsTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            DiffScreen()
+            DiffContent(someSchedule)
         }
     }
 }
+
+private val someSchedule = DiffedSchedule(
+    days = listOf(
+        Day(
+            "11.05.2015", lessons = listOf(
+                Lesson(
+                    "11:40",
+                    "13:00",
+                    Teacher("Maksim Ploski", "Android Developer"),
+                    "Examination (written)",
+                    "Elegant Object principles",
+                    "Ozheshko 22",
+                    "316",
+                    isAdded = false,
+                    isDeleted = true
+                ),
+                Lesson(
+                    "18:15",
+                    "19:35",
+                    Teacher("Maksim Ploski", "Android Developer"),
+                    "Examination (oral)",
+                    "Elegant Object principles",
+                    "Ozheshko 22",
+                    "316",
+                    isAdded = true,
+                    isDeleted = false
+                )
+            ).sortedBy { it.timeStart }
+        )
+    )
+)
