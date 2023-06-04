@@ -9,7 +9,7 @@ data class DiffedSchedule(val id: String = "", val days: List<Day> = listOf())
 
 fun DiffedSchedule.toRealm(): DiffedScheduleRealm {
     return DiffedScheduleRealm().apply {
-        id = ObjectId(this@toRealm.id)
+        id = if (this@toRealm.id.isEmpty()) ObjectId() else ObjectId(this@toRealm.id)
         days = this@toRealm.days.map(Day::toRealm).toTypedArray().let { RealmList(*it) }
     }
 }

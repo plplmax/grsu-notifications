@@ -50,6 +50,7 @@ class App : Application(), Configuration.Provider {
             ScheduleWorkerFactory(
                 deps.userRepository,
                 deps.scheduleRepository,
+                deps.diffedScheduleRepository,
                 deps.scheduleNotificationChannel,
                 deps.resources
             )

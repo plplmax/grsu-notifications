@@ -4,9 +4,14 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
+import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.schedule.models.Day
+import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
+import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
+import com.github.plplmax.notifications.notification.ScheduleDiffNotification
+import com.github.plplmax.notifications.notification.NotificationType
 import com.github.plplmax.notifications.notification.ScheduleNotification
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
@@ -21,6 +26,7 @@ class ScheduleWorker(
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
+    private val diffedScheduleRepository: DiffedScheduleRepository,
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
@@ -28,75 +34,73 @@ class ScheduleWorker(
         get() = this.runAttemptCount > 0
 
     override suspend fun doWork(): Result {
-        val oldSchedules = scheduleRepository.schedule()
+        val oldScheduleResult = scheduleRepository.schedule()
 
-        if (oldSchedules.isNotEmpty() && isNightNow()) {
+        if (oldScheduleResult.isNotEmpty() && isNightNow()) {
             return Result.success()
         }
 
         val userId = userRepository.id()
         val (startDate, endDate) = scheduleRange()
-        val newSchedulesResult = scheduleRepository.onWeek(userId, startDate, endDate)
+        val newScheduleResult = scheduleRepository.onWeek(userId, startDate, endDate)
 
-        if (newSchedulesResult.isFailure) {
+        if (newScheduleResult.isFailure) {
             if (!errorNotificationExists) {
                 ScheduleNotification(
                     title = resources.string(R.string.schedule_update_error),
                     text = resources.string(R.string.lets_try_again),
-                    type = ScheduleNotification.Type.FAILED
+                    type = NotificationType.FAILED
                 ).send(notificationChannel)
             }
             return Result.retry()
         }
 
-        // @todo rename variables schedule to days where is needed
-        val updatedSchedule = newSchedulesResult.getOrThrow().days
+        val oldSchedule = oldScheduleResult.firstOrNull() ?: Schedule(days = listOf())
+        val newSchedule = newScheduleResult.getOrThrow()
 
-        val firstDiffedSchedule = updatedSchedule.map { schedule ->
+        val daysDiffNewToOld = newSchedule.days.map { newDay ->
             val foundMatches =
-                oldSchedules.first().days.find { it.date == schedule.date } ?: kotlin.run {
-                    return@map Day(
-                        schedule.date,
-                        schedule.lessons.map { it.copy(isAdded = true) })
+                oldSchedule.days.find { it.date == newDay.date } ?: kotlin.run {
+                    return@map newDay.copy(lessons = newDay.lessons.map { it.copy(isAdded = true) })
                 }
 
             val addedLessons =
-                (schedule.lessons - foundMatches.lessons.toSet()).map { it.copy(isAdded = true) }
+                (newDay.lessons - foundMatches.lessons.toSet()).map { it.copy(isAdded = true) }
             val deletedLessons =
-                (foundMatches.lessons - schedule.lessons.toSet()).map { it.copy(isDeleted = true) }
-            // @todo do not create day with empty list
-            Day(
-                schedule.date,
-                // @todo sorted by time start is dangerous, because timestart is string
-                (addedLessons + deletedLessons).sortedBy { it.timeStart })
+                (foundMatches.lessons - newDay.lessons.toSet()).map { it.copy(isDeleted = true) }
+            newDay.copy(
+                lessons = (addedLessons + deletedLessons).sortedBy { it.timeStart })
         }
 
-        val secondDiffedSchedule = mutableListOf<Day>()
+        val daysDiffOldToNew = mutableListOf<Day>()
 
-        oldSchedules.first().days.forEach { schedule ->
-            updatedSchedule.find { it.date == schedule.date } ?: kotlin.run {
-                secondDiffedSchedule.add(
-                    Day(
-                        schedule.date,
-                        schedule.lessons.map { it.copy(isDeleted = true) })
+        oldSchedule.days.forEach { oldDay ->
+            newSchedule.days.find { it.date == oldDay.date } ?: kotlin.run {
+                daysDiffOldToNew.add(
+                    oldDay.copy(lessons = oldDay.lessons.map { it.copy(isDeleted = true) })
                 )
             }
         }
 
-        val resultDiffedSchedule = firstDiffedSchedule + secondDiffedSchedule
+        // @todo sort days for date (try to swap addition arguments)
+        val diffedSchedule = DiffedSchedule(
+            days = daysDiffNewToOld.filter { it.lessons.isNotEmpty() } + daysDiffOldToNew
+        )
 
         notificationChannel.cancelFailedNotifications()
 
         scheduleRepository.deleteSchedule()
-        scheduleRepository.save(newSchedulesResult.getOrThrow())
+        scheduleRepository.save(newSchedule)
+        val diffId = diffedScheduleRepository.save(diffedSchedule)
 
-        if (oldSchedules.isEmpty()) {
+        if (oldScheduleResult.isEmpty()) {
             ScheduleNotification(
                 title = resources.string(R.string.schedule_is_synchronized),
                 text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
-        } else if (resultDiffedSchedule.isNotEmpty()) {
-            ScheduleNotification(
+        } else if (diffedSchedule.days.isNotEmpty()) {
+            ScheduleDiffNotification(
+                id = diffId,
                 title = resources.string(R.string.schedule_updated),
                 text = resources.string(R.string.tap_to_view_schedule)
             ).send(notificationChannel)

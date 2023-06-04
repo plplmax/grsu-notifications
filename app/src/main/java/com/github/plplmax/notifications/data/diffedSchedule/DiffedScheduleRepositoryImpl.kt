@@ -9,8 +9,8 @@ import com.github.plplmax.notifications.data.schedule.models.toRealm
 class DiffedScheduleRepositoryImpl(
     private val local: DiffedScheduleLocalDataSource
 ) : DiffedScheduleRepository {
-    override suspend fun save(schedule: DiffedSchedule) {
-        local.insert(schedule.toRealm())
+    override suspend fun save(schedule: DiffedSchedule): String {
+        return local.insert(schedule.toRealm())
     }
 
     override suspend fun schedules(): List<DiffedSchedule> {

@@ -2,13 +2,13 @@ package com.github.plplmax.notifications.notification
 
 import android.app.Notification
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 
 interface ScheduleNotificationChannel : NotificationChannel {
@@ -22,7 +22,7 @@ interface ScheduleNotificationChannel : NotificationChannel {
             get() = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent())
+                .setContentIntent(pendingIntent {})
                 .setVibrate(VIBRATION_PATTERN)
                 .setAutoCancel(true)
 
@@ -55,16 +55,13 @@ interface ScheduleNotificationChannel : NotificationChannel {
         }
 
         override fun cancelFailedNotifications() {
-            this.cancelNotification(ScheduleNotification.Type.FAILED.id)
+            this.cancelNotification(NotificationType.FAILED.id)
         }
 
-        private fun pendingIntent(): PendingIntent {
-            val intent = Intent(Intent.ACTION_MAIN).apply {
-                component = ComponentName(
-                    COMPONENT_PACKAGE,
-                    COMPONENT_CLASS
-                )
+        override fun pendingIntent(configuration: Intent.() -> Unit): PendingIntent {
+            val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                configuration()
             }
             val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -81,8 +78,6 @@ interface ScheduleNotificationChannel : NotificationChannel {
 
         companion object {
             private const val CHANNEL_ID = "1"
-            private const val COMPONENT_PACKAGE = "com.grsu.schedule"
-            private const val COMPONENT_CLASS = "com.grsu.schedule.activities.HomeActivity"
             private val VIBRATION_PATTERN = longArrayOf(0, 100, 150, 100)
         }
     }

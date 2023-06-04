@@ -1,6 +1,8 @@
 package com.github.plplmax.notifications.notification
 
 import android.app.Notification
+import android.app.PendingIntent
+import android.content.Intent
 import androidx.core.app.NotificationCompat
 
 interface NotificationChannel {
@@ -10,4 +12,5 @@ interface NotificationChannel {
     fun delete()
     fun send(id: Int, notification: Notification)
     fun cancelNotification(id: Int)
+    fun pendingIntent(configuration: Intent.() -> Unit): PendingIntent
 }

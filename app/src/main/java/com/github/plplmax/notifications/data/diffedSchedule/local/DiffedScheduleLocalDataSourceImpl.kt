@@ -11,11 +11,12 @@ class DiffedScheduleLocalDataSourceImpl(
     private val database: Database,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : DiffedScheduleLocalDataSource {
-    override suspend fun insert(schedule: DiffedScheduleRealm) {
-        withContext(ioDispatcher) {
+    override suspend fun insert(schedule: DiffedScheduleRealm): String {
+        return withContext(ioDispatcher) {
             database.instance().use { realm ->
                 realm.executeTransaction { it.insert(schedule) }
             }
+            schedule.id.toString()
         }
     }
 
