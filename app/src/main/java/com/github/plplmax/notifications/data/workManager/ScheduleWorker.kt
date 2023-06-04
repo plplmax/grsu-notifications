@@ -4,14 +4,13 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
+import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
 import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
-import com.github.plplmax.notifications.data.schedule.models.Day
-import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.notification.NotificationType
+import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.notification.ScheduleNotification
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
@@ -58,34 +57,7 @@ class ScheduleWorker(
         val oldSchedule = oldScheduleResult.firstOrNull() ?: Schedule(days = listOf())
         val newSchedule = newScheduleResult.getOrThrow()
 
-        val daysDiffNewToOld = newSchedule.days.map { newDay ->
-            val foundMatches =
-                oldSchedule.days.find { it.date == newDay.date } ?: kotlin.run {
-                    return@map newDay.copy(lessons = newDay.lessons.map { it.copy(isAdded = true) })
-                }
-
-            val addedLessons =
-                (newDay.lessons - foundMatches.lessons.toSet()).map { it.copy(isAdded = true) }
-            val deletedLessons =
-                (foundMatches.lessons - newDay.lessons.toSet()).map { it.copy(isDeleted = true) }
-            newDay.copy(
-                lessons = (addedLessons + deletedLessons).sortedBy { it.timeStart })
-        }
-
-        val daysDiffOldToNew = mutableListOf<Day>()
-
-        oldSchedule.days.forEach { oldDay ->
-            newSchedule.days.find { it.date == oldDay.date } ?: kotlin.run {
-                daysDiffOldToNew.add(
-                    oldDay.copy(lessons = oldDay.lessons.map { it.copy(isDeleted = true) })
-                )
-            }
-        }
-
-        // @todo sort days for date (try to swap addition arguments)
-        val diffedSchedule = DiffedSchedule(
-            days = daysDiffNewToOld.filter { it.lessons.isNotEmpty() } + daysDiffOldToNew
-        )
+        val diffedSchedule = ComputedScheduleDiffOf(oldSchedule, newSchedule).value()
 
         notificationChannel.cancelFailedNotifications()
 
