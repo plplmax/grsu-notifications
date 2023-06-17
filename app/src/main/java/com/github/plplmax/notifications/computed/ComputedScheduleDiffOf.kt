@@ -20,7 +20,7 @@ class ComputedScheduleDiffOf(
             val deletedLessons =
                 (foundMatches.lessons - newDay.lessons.toSet()).map { it.copy(isDeleted = true) }
             newDay.copy(
-                lessons = (addedLessons + deletedLessons).sortedBy { it.timeStart })
+                lessons = (deletedLessons + addedLessons).sortedBy { it.timeStart })
         }
 
         val daysDiffOldToNew = mutableListOf<Day>()

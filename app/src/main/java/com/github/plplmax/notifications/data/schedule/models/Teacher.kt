@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Teacher(
-    val fullname: String,
-    val post: String,
+    val fullname: String = "",
+    val post: String = "",
 )
 
 fun Teacher.toRealm(): TeacherRealm {

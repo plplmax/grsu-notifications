@@ -4,13 +4,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Lesson(
-    val timeStart: String,
-    val timeEnd: String,
-    val teacher: Teacher,
-    val type: String,
-    val title: String,
-    val address: String,
-    val room: String,
+    val timeStart: String = "",
+    val timeEnd: String = "",
+    val teacher: Teacher = Teacher(),
+    val type: String = "",
+    val title: String = "",
+    val address: String = "",
+    val room: String = "",
     val isAdded: Boolean = false,
     val isDeleted: Boolean = false
 )
