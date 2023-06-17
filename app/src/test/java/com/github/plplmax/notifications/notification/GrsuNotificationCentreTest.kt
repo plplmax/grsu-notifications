@@ -5,13 +5,16 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.plplmax.notifications.FakeApp
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.robolectric.annotation.Config
 
+@Config(application = FakeApp::class)
 @RunWith(AndroidJUnit4::class)
 class GrsuNotificationCentreTest {
     private val context: Context = ApplicationProvider.getApplicationContext()

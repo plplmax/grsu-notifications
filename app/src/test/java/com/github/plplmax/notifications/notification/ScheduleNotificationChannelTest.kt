@@ -3,17 +3,20 @@ package com.github.plplmax.notifications.notification
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.plplmax.notifications.FakeApp
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.*
+import org.robolectric.annotation.Config
 
+@Config(application = FakeApp::class)
 @RunWith(AndroidJUnit4::class)
 class ScheduleNotificationChannelTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val notificationCentre: NotificationCentre = mock()
-    private val notificationId = ScheduleNotification.Type.SUCCESSFUL.id
+    private val notificationId = NotificationType.SUCCESSFUL.id
     private lateinit var channel: ScheduleNotificationChannel.Base
 
     @Before
@@ -57,6 +60,6 @@ class ScheduleNotificationChannelTest {
 
         channelSpy.cancelFailedNotifications()
 
-        verify(channelSpy).cancelNotification(ScheduleNotification.Type.FAILED.id)
+        verify(channelSpy).cancelNotification(NotificationType.FAILED.id)
     }
 }

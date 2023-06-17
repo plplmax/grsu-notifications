@@ -51,6 +51,6 @@ class ScheduleNotificationTest {
     companion object {
         private const val TITLE = "TITLE"
         private const val TEXT = "TEXT"
-        private val TYPE = ScheduleNotification.Type.SUCCESSFUL
+        private val TYPE = NotificationType.SUCCESSFUL
     }
 }
