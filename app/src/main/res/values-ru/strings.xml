@@ -23,4 +23,7 @@
     <string name="how_application_works">Вы будете получать уведомления при изменении расписания текущей недели и следующих понедельника, вторника, среды.</string>
     <string name="schedule_updated">Расписание обновлено</string>
     <string name="tap_to_view_schedule">Нажмите для просмотра расписания</string>
+    <string name="grsu_notifications">ГрГУ Уведомления</string>
+    <string name="stay_up_to_date_on_your_schedule">Будьте в курсе изменений расписания ГрГУ!</string>
+    <string name="get_started">Начать</string>
 </resources>
