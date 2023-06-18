@@ -6,17 +6,18 @@ import io.realm.kotlin.where
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.bson.types.ObjectId
 
 class DiffedScheduleLocalDataSourceImpl(
     private val database: Database,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : DiffedScheduleLocalDataSource {
-    override suspend fun insert(schedule: DiffedScheduleRealm): String {
+    override suspend fun insert(schedule: DiffedScheduleRealm): ObjectId {
         return withContext(ioDispatcher) {
             database.instance().use { realm ->
                 realm.executeTransaction { it.insert(schedule) }
             }
-            schedule.id.toString()
+            schedule.id
         }
     }
 
@@ -30,7 +31,7 @@ class DiffedScheduleLocalDataSourceImpl(
         }
     }
 
-    override suspend fun scheduleById(id: String): List<DiffedScheduleRealm> {
+    override suspend fun scheduleById(id: ObjectId): List<DiffedScheduleRealm> {
         return withContext(ioDispatcher) {
             database.instance().use { realm ->
                 realm.where<DiffedScheduleRealm>()
@@ -41,7 +42,7 @@ class DiffedScheduleLocalDataSourceImpl(
         }
     }
 
-    override suspend fun deleteById(id: String) {
+    override suspend fun deleteById(id: ObjectId) {
         withContext(ioDispatcher) {
             database.instance().use { realm ->
                 realm.executeTransaction {
