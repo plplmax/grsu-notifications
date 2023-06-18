@@ -63,7 +63,7 @@ class MainViewModel(
                 state = try {
                     workManager.enqueueUniquePeriodicWork(
                         WORK_NAME,
-                        ExistingPeriodicWorkPolicy.REPLACE,
+                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                         PeriodicWorkRequestBuilder<ScheduleWorker>(
                             30, TimeUnit.MINUTES
                         ).setConstraints(constraints).build()
