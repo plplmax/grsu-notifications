@@ -1,7 +1,6 @@
 package com.github.plplmax.notifications.data.schedule.local
 
 import com.github.plplmax.notifications.data.database.Database
-import com.github.plplmax.notifications.data.schedule.models.DayRealm
 import com.github.plplmax.notifications.data.schedule.models.ScheduleRealm
 import io.realm.kotlin.delete
 import io.realm.kotlin.where
@@ -34,7 +33,7 @@ class ScheduleLocalDataSourceImpl(
     override suspend fun deleteSchedule() {
         withContext(dispatcher) {
             database.instance().use { realm ->
-                realm.executeTransaction { it.delete<DayRealm>() }
+                realm.executeTransaction { it.delete<ScheduleRealm>() }
             }
         }
     }
