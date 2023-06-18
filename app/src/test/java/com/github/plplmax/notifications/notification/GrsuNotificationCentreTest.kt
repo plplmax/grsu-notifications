@@ -1,6 +1,7 @@
 package com.github.plplmax.notifications.notification
 
-import android.content.Context
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.app.Application
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
@@ -12,19 +13,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @Config(application = FakeApp::class)
 @RunWith(AndroidJUnit4::class)
 class GrsuNotificationCentreTest {
-    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val app: Application = ApplicationProvider.getApplicationContext()
     private val notificationManager: NotificationManagerCompat = mock()
     private val notificationChannel: NotificationChannelCompat = mock()
     private lateinit var notificationCentre: GrsuNotificationCentre
 
     @Before
     fun before() {
-        this.notificationCentre = GrsuNotificationCentre(context, notificationManager)
+        this.notificationCentre = GrsuNotificationCentre(app, notificationManager)
     }
 
     @Test
@@ -46,6 +48,7 @@ class GrsuNotificationCentreTest {
     @Test
     fun `when sending a notification should be invoked notify`() {
         val notification = mock<android.app.Notification>()
+        Shadows.shadowOf(app).grantPermissions(POST_NOTIFICATIONS)
 
         notificationCentre.send(NOTIFICATION_ID, notification)
 
