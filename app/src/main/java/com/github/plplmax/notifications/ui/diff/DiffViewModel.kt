@@ -23,7 +23,6 @@ class DiffViewModel(
     fun loadScheduleById(id: String) {
         viewModelScope.launch(ioDispatcher) {
             state = try {
-                // @todo add catch block
                 val schedule = scheduleRepository.scheduleById(id)
                 val newState = if (schedule.isEmpty()) {
                     // @todo replace string literal with the constant
