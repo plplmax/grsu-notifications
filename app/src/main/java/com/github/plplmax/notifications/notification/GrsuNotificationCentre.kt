@@ -27,8 +27,11 @@ class GrsuNotificationCentre(
         this.manager.deleteNotificationChannel(id)
     }
 
+    @SuppressLint("MissingPermission")
     override fun send(notificationId: Int, notification: Notification) {
-        this.manager.notify(notificationId, notification)
+        if (hasNotificationsPermission) {
+            this.manager.notify(notificationId, notification)
+        }
     }
 
     override fun cancelNotification(id: Int) {

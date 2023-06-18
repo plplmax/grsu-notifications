@@ -7,6 +7,8 @@ import com.github.plplmax.notifications.data.workManager.ScheduleWorkerFactory
 import com.github.plplmax.notifications.deps.Dependencies
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.timber.CrashlyticsTree
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import timber.log.Timber
 
 class App : Application(), Configuration.Provider {
@@ -20,6 +22,7 @@ class App : Application(), Configuration.Provider {
             Timber.plant(CrashlyticsTree())
         }
         createNotificationChannel()
+        initRealm()
     }
 
     private fun createNotificationChannel() {
@@ -31,11 +34,23 @@ class App : Application(), Configuration.Provider {
         }
     }
 
+    private fun initRealm() {
+        Realm.init(applicationContext)
+        val realmConfig =
+            RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .name("appStorage.realm")
+                .compactOnLaunch()
+                .build()
+        Realm.setDefaultConfiguration(realmConfig)
+    }
+
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder().setWorkerFactory(
             ScheduleWorkerFactory(
                 deps.userRepository,
                 deps.scheduleRepository,
+                deps.diffedScheduleRepository,
                 deps.scheduleNotificationChannel,
                 deps.resources
             )

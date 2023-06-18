@@ -1,32 +1,40 @@
 package com.github.plplmax.notifications.data.schedule.local
 
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.core.content.edit
+import com.github.plplmax.notifications.data.database.Database
+import com.github.plplmax.notifications.data.schedule.models.ScheduleRealm
+import io.realm.kotlin.delete
+import io.realm.kotlin.where
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ScheduleLocalDataSourceImpl(
-    context: Context,
+    private val database: Database,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ScheduleLocalDataSource {
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-    override fun saveScheduleHash(hash: String) {
-        prefs.edit { putString(PREFS_NAME, hash) }
+    override suspend fun insert(schedule: ScheduleRealm) {
+        withContext(dispatcher) {
+            database.instance().use { realm ->
+                realm.executeTransaction { it.insert(schedule) }
+            }
+        }
     }
 
-    override fun deleteScheduleHash() {
-        prefs.edit { remove(PREFS_NAME) }
+    override suspend fun schedule(): List<ScheduleRealm> {
+        return withContext(dispatcher) {
+            database.instance().use { realm ->
+                realm.where<ScheduleRealm>()
+                    .findAll()
+                    .let { realm.copyFromRealm(it) }
+            }
+        }
     }
 
-    override suspend fun scheduleHash(): String = withContext(dispatcher) {
-        prefs.getString(PREFS_NAME, "")!!
-    }
-
-    companion object {
-        private const val PREFS_NAME = "schedule"
+    override suspend fun deleteSchedule() {
+        withContext(dispatcher) {
+            database.instance().use { realm ->
+                realm.executeTransaction { it.delete<ScheduleRealm>() }
+            }
+        }
     }
 }

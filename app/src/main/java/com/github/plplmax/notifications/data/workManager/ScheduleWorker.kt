@@ -4,21 +4,28 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
+import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
+import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
+import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
+import com.github.plplmax.notifications.notification.NotificationType
+import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.notification.ScheduleNotification
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
 import org.json.JSONObject
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 class ScheduleWorker(
     context: Context,
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
+    private val diffedScheduleRepository: DiffedScheduleRepository,
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
@@ -26,39 +33,46 @@ class ScheduleWorker(
         get() = this.runAttemptCount > 0
 
     override suspend fun doWork(): Result {
-        val oldHash = scheduleRepository.scheduleHash()
+        val oldScheduleResult = scheduleRepository.schedule()
 
-        if (oldHash.isNotEmpty() && isNightNow()) {
+        if (oldScheduleResult.isNotEmpty() && isNightNow()) {
             return Result.success()
         }
 
         val userId = userRepository.id()
         val (startDate, endDate) = scheduleRange()
-        val jsonResult = scheduleRepository.onWeek(userId, startDate, endDate)
+        val newScheduleResult = scheduleRepository.onWeek(userId, startDate, endDate)
 
-        if (jsonResult.isFailure) {
+        if (newScheduleResult.isFailure) {
             if (!errorNotificationExists) {
                 ScheduleNotification(
                     title = resources.string(R.string.schedule_update_error),
                     text = resources.string(R.string.lets_try_again),
-                    type = ScheduleNotification.Type.FAILED
+                    type = NotificationType.FAILED
                 ).send(notificationChannel)
             }
             return Result.retry()
         }
 
+        val oldSchedule = oldScheduleResult.firstOrNull() ?: Schedule(days = listOf())
+        val newSchedule = newScheduleResult.getOrThrow()
+
+        val diffedSchedule = ComputedScheduleDiffOf(oldSchedule, newSchedule).value()
+
         notificationChannel.cancelFailedNotifications()
 
-        val newHash = hashed(jsonResult.getOrThrow())
-        scheduleRepository.saveScheduleHash(newHash)
+        scheduleRepository.deleteSchedule()
+        scheduleRepository.save(newSchedule)
+        val diffId = diffedScheduleRepository.save(diffedSchedule)
 
-        if (oldHash.isEmpty()) {
+        if (oldScheduleResult.isEmpty()) {
             ScheduleNotification(
                 title = resources.string(R.string.schedule_is_synchronized),
                 text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
-        } else if (oldHash != newHash) {
-            ScheduleNotification(
+        } else if (diffedSchedule.days.isNotEmpty()) {
+            ScheduleDiffNotification(
+                id = diffId,
                 title = resources.string(R.string.schedule_updated),
                 text = resources.string(R.string.tap_to_view_schedule)
             ).send(notificationChannel)

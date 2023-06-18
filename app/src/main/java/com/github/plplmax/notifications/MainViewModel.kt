@@ -63,7 +63,7 @@ class MainViewModel(
                 state = try {
                     workManager.enqueueUniquePeriodicWork(
                         WORK_NAME,
-                        ExistingPeriodicWorkPolicy.REPLACE,
+                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                         PeriodicWorkRequestBuilder<ScheduleWorker>(
                             30, TimeUnit.MINUTES
                         ).setConstraints(constraints).build()
@@ -82,7 +82,7 @@ class MainViewModel(
             state = try {
                 workManager.cancelUniqueWork(WORK_NAME).await()
                 userRepository.deleteId()
-                scheduleRepository.deleteScheduleHash()
+                scheduleRepository.deleteSchedule()
                 val login = userRepository.login()
                 UiState.Initial(login)
             } catch (e: Exception) {
