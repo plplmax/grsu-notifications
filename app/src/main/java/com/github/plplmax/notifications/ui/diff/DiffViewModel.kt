@@ -9,6 +9,8 @@ import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleReposi
 import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 class DiffViewModel(
@@ -20,14 +22,20 @@ class DiffViewModel(
 
     fun loadScheduleById(id: String) {
         viewModelScope.launch(ioDispatcher) {
-            val schedule = scheduleRepository.scheduleById(id)
-            val newState = if (schedule.isEmpty()) {
-                // @todo replace string literal with the constant
-                UiState.Error("Schedule not found")
-            } else {
-                UiState.Loaded(schedule.first())
+            state = try {
+                // @todo add catch block
+                val schedule = scheduleRepository.scheduleById(id)
+                val newState = if (schedule.isEmpty()) {
+                    // @todo replace string literal with the constant
+                    UiState.Error("Schedule not found")
+                } else {
+                    UiState.Loaded(schedule.first())
+                }
+                newState
+            } catch (_: Exception) {
+                currentCoroutineContext().ensureActive()
+                UiState.Error("Something went wrong")
             }
-            state = newState
         }
     }
 
