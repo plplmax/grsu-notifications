@@ -4,12 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.Scaffold
 import androidx.work.WorkManager
 import com.github.plplmax.notifications.ui.login.LoginScreen
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
@@ -29,12 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GrsuNotificationsTheme {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                Scaffold { padding ->
                     LoginScreen(viewModel)
                 }
             }

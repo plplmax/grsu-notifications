@@ -74,7 +74,7 @@ fun LoginScreen(viewModel: MainViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(all = 14.dp),
+            .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
         LoginContent(
@@ -160,7 +160,9 @@ private fun LoginContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.width(IntrinsicSize.Max)
+        modifier = Modifier
+            .width(IntrinsicSize.Max)
+            .padding(all = 14.dp)
     ) {
         LoginImage()
         Spacer(modifier = Modifier.height(32.dp))
