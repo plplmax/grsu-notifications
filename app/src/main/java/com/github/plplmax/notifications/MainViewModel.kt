@@ -13,6 +13,7 @@ import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.data.workManager.ScheduleWorker
 import com.github.plplmax.notifications.notification.NotificationCentre
+import com.github.plplmax.notifications.ui.navigation.Routes
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -29,6 +30,9 @@ class MainViewModel(
     val needRequestNotificationsPermission: Boolean
         get() = !notificationCentre.hasNotificationsPermission
 
+    var startDestination: Routes by mutableStateOf(Routes.Undefined)
+        private set
+
     init {
         initState()
     }
@@ -39,11 +43,14 @@ class MainViewModel(
             val login = async { userRepository.login() }
 
             if (login.await().isNotEmpty()) {
+                startDestination = Routes.Login
                 state = if (userId.await() == 0) {
                     UiState.Initial(login.await())
                 } else {
                     UiState.Updating(login.await())
                 }
+            } else {
+                startDestination = Routes.Welcome
             }
         }
     }

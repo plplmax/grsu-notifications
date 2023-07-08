@@ -31,7 +31,7 @@ import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(navigateLogin: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -64,7 +64,7 @@ fun WelcomeScreen() {
                         .padding(bottom = 32.dp),
                 )
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = navigateLogin,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = stringResource(R.string.get_started))

@@ -4,9 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material3.Scaffold
 import androidx.work.WorkManager
-import com.github.plplmax.notifications.ui.login.LoginScreen
+import com.github.plplmax.notifications.ui.MainScreen
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,9 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GrsuNotificationsTheme {
-                Scaffold { padding ->
-                    LoginScreen(viewModel)
-                }
+                MainScreen(viewModel)
             }
         }
     }
