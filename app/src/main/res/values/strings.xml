@@ -26,4 +26,6 @@
     <string name="stay_up_to_date_on_your_schedule">Stay up-to-date on your university\'s schedule changes!</string>
     <string name="get_started">Get Started</string>
     <string name="welcome">Welcome</string>
+    <string name="schedule_changed">The schedule has been changed</string>
+    <string name="notifications">Notifications</string>
 </resources>

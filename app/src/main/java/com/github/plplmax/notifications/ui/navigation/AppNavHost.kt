@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.github.plplmax.notifications.MainViewModel
 import com.github.plplmax.notifications.ui.login.LoginScreen
+import com.github.plplmax.notifications.ui.notification.NotificationScreen
 import com.github.plplmax.notifications.ui.welcome.WelcomeScreen
 
 @Composable
@@ -28,5 +29,6 @@ fun AppNavHost(
             }
         }
         composable(Routes.Login.route) { LoginScreen(viewModel) }
+        composable(Routes.Notifications.route) { NotificationScreen() }
     }
 }

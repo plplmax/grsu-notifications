@@ -10,7 +10,6 @@ import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.notification.NotificationType
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.notification.ScheduleNotification
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
@@ -71,8 +70,7 @@ class ScheduleWorker(
                 text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
         } else if (diffedSchedule.days.isNotEmpty()) {
-            ScheduleDiffNotification(
-                id = diffId,
+            ScheduleNotification(
                 title = resources.string(R.string.schedule_updated),
                 text = resources.string(R.string.tap_to_view_schedule)
             ).send(notificationChannel)
