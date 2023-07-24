@@ -29,4 +29,6 @@
     <string name="schedule_changed">The schedule has been changed</string>
     <string name="notifications">Notifications</string>
     <string name="diff">Diff</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
 </resources>

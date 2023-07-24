@@ -46,20 +46,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.github.plplmax.notifications.App
+import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
-import java.util.Date
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZonedDateTime
+import java.time.chrono.IsoChronology
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.FormatStyle
+import java.util.Locale
 
 @Composable
 fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
-    val viewModel: NotificationViewModel = viewModel()
+    val context = LocalContext.current
+    val app = remember(context) {
+        ((context as MainActivity).application) as App
+    }
+    val viewModel = viewModel(initializer = {
+        NotificationViewModel(notifications = app.deps.scheduleNotifications)
+    })
     when (val state = viewModel.uiState) {
         // @todo handle loading state
         is NotificationViewModel.UiState.Loaded -> NotificationContent(
@@ -75,9 +92,9 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NotificationContent(
-    notifications: Map<String, List<ScheduleDiffNotification>> = mapOf(),
+    notifications: Map<LocalDate, List<ScheduleDiffNotification>> = mapOf(),
     onSelect: (id: String) -> Unit = {},
-    onDelete: (date: String, id: String) -> Unit = { _, _ -> }
+    onDelete: (date: LocalDate, id: String) -> Unit = { _, _ -> }
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -87,13 +104,8 @@ private fun NotificationContent(
     ) {
         for ((date, notifs) in notifications) {
             if (notifs.isEmpty()) continue
-            item(key = date) {
-                Text(
-                    text = date,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.animateItemPlacement()
-                )
-            }
+            // @todo maybe invoke date.toString() as key
+            item(key = date) { DateText(date = date, modifier = Modifier.animateItemPlacement()) }
             items(items = notifs, key = { it.id }) { item ->
                 NotificationCard(
                     item = item,
@@ -103,6 +115,44 @@ private fun NotificationContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun DateText(date: LocalDate, modifier: Modifier = Modifier) {
+    val today = LocalDate.now()
+    val yesterday = today.minusDays(1)
+    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]!!
+    val formatter = getLocalizedDateFormatter(date, locale)
+    val text = when (date) {
+        today -> stringResource(id = R.string.today)
+        yesterday -> stringResource(id = R.string.yesterday)
+        else -> formatter.format(date)
+    }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun getLocalizedDateFormatter(date: LocalDate, locale: Locale): DateTimeFormatter {
+    val today = LocalDate.now()
+    val pattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+        FormatStyle.MEDIUM,
+        null,
+        IsoChronology.INSTANCE,
+        locale
+    )
+    val removeYearRegex = remember(pattern) {
+        Regex(if (pattern.contains("de")) "[^Mm]*[Yy]+[^Mm]*" else "[^DdMm]*[Yy]+[^DdMm]*")
+    }
+    val showYear = date.year != today.year
+    return if (showYear) {
+        DateTimeFormatter.ofPattern(pattern, locale)
+    } else {
+        DateTimeFormatter.ofPattern(pattern.replace(removeYearRegex, ""), locale)
     }
 }
 
@@ -125,16 +175,23 @@ private fun NotificationCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(id = R.string.schedule_changed))
                 }
-                Text(
-                    "12:43 PM", // @todo replace with item.time
+                TimeText(
+                    time = item.created.toLocalTime(),
                     modifier = Modifier
                         .padding(top = 14.dp)
-                        .align(Alignment.End),
-                    textAlign = TextAlign.End
+                        .align(Alignment.End)
                 )
             }
         }
     }
+}
+
+@Composable
+private fun TimeText(time: LocalTime, modifier: Modifier = Modifier) {
+    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
+    val formatter = DateTimeFormatterBuilder().appendLocalized(null, FormatStyle.SHORT)
+        .toFormatter(locale)
+    Text(text = formatter.format(time), modifier = modifier)
 }
 
 @Composable
@@ -244,9 +301,19 @@ private fun NotificationContentPreview() {
         Surface {
             NotificationContent(
                 notifications = mapOf(
-                    "Today" to listOf(
-                        ScheduleDiffNotification("1", false, Date()),
-                        ScheduleDiffNotification("2", true, Date()),
+                    LocalDate.now() to listOf(
+                        ScheduleDiffNotification("1", false, ZonedDateTime.now().minusHours(5)),
+                        ScheduleDiffNotification("2", true, ZonedDateTime.now()),
+                    ),
+                    LocalDate.now().minusDays(1) to listOf(
+                        ScheduleDiffNotification("3", false, ZonedDateTime.now()),
+                        ScheduleDiffNotification("4", true, ZonedDateTime.now()),
+                    ),
+                    LocalDate.now().minusDays(2) to listOf(
+                        ScheduleDiffNotification("5", false, ZonedDateTime.now()),
+                    ),
+                    LocalDate.now().minusYears(1) to listOf(
+                        ScheduleDiffNotification("6", false, ZonedDateTime.now()),
                     )
                 )
             )

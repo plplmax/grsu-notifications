@@ -5,11 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.notification.ScheduleDiffNotification
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Date
+import java.time.LocalDate
 
-class NotificationViewModel : ViewModel() {
+class NotificationViewModel(
+    private val notifications: ScheduleNotifications,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
     var uiState: UiState by mutableStateOf(UiState.Loading)
         private set
 
@@ -18,20 +24,14 @@ class NotificationViewModel : ViewModel() {
     }
 
     private fun initState() {
-        // @todo replace with real implementation
-        viewModelScope.launch {
-            uiState = UiState.Loaded(
-                mapOf(
-                    "Today" to listOf(
-                        ScheduleDiffNotification("1", false, Date()),
-                        ScheduleDiffNotification("2", true, Date()),
-                    )
-                )
-            )
+        viewModelScope.launch(ioDispatcher) {
+            val result = notifications.notifications()
+            val groupedByCreated = result.groupBy { it.created.toLocalDate() }
+            uiState = UiState.Loaded(groupedByCreated)
         }
     }
 
-    fun deleteNotification(date: String, id: String) {
+    fun deleteNotification(date: LocalDate, id: String) {
         val currentState = uiState
         if (currentState is UiState.Loaded) {
             val updatedMap = currentState.notifications.toMutableMap()
@@ -42,6 +42,6 @@ class NotificationViewModel : ViewModel() {
 
     sealed class UiState {
         object Loading : UiState()
-        class Loaded(val notifications: Map<String, List<ScheduleDiffNotification>>) : UiState()
+        class Loaded(val notifications: Map<LocalDate, List<ScheduleDiffNotification>>) : UiState()
     }
 }

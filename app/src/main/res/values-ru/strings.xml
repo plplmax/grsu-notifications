@@ -30,4 +30,6 @@
     <string name="schedule_changed">Расписание было обновлено</string>
     <string name="notifications">Уведомления</string>
     <string name="diff">Разница</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
 </resources>
