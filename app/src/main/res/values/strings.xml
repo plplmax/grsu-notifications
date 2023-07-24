@@ -28,4 +28,5 @@
     <string name="welcome">Welcome</string>
     <string name="schedule_changed">The schedule has been changed</string>
     <string name="notifications">Notifications</string>
+    <string name="diff">Diff</string>
 </resources>

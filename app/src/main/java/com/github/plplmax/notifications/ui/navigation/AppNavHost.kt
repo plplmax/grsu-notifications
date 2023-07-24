@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.github.plplmax.notifications.MainViewModel
+import com.github.plplmax.notifications.ui.diff.DiffScreen
 import com.github.plplmax.notifications.ui.login.LoginScreen
 import com.github.plplmax.notifications.ui.notification.NotificationScreen
 import com.github.plplmax.notifications.ui.welcome.WelcomeScreen
@@ -29,6 +30,15 @@ fun AppNavHost(
             }
         }
         composable(Routes.Login.route) { LoginScreen(viewModel) }
-        composable(Routes.Notifications.route) { NotificationScreen() }
+        composable(Routes.Notifications.route) {
+            NotificationScreen {
+                val route = Routes.Diff.route.replace("{id}", it)
+                navController.navigate(route)
+            }
+        }
+        composable(Routes.Diff.route) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")!!
+            DiffScreen(id = id)
+        }
     }
 }

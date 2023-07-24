@@ -58,12 +58,13 @@ import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.util.Date
 
 @Composable
-fun NotificationScreen() {
+fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
     val viewModel: NotificationViewModel = viewModel()
     when (val state = viewModel.uiState) {
         // @todo handle loading state
         is NotificationViewModel.UiState.Loaded -> NotificationContent(
             notifications = state.notifications,
+            onSelect = onSelect,
             onDelete = viewModel::deleteNotification
         )
 
