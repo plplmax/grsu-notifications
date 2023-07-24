@@ -58,6 +58,7 @@ import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.notification.ScheduleDiffNotification
+import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.time.LocalDate
 import java.time.LocalTime
@@ -82,7 +83,7 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
         is NotificationViewModel.UiState.Loaded -> NotificationContent(
             notifications = state.notifications,
             onSelect = onSelect,
-            onDelete = viewModel::deleteNotification
+            onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() }
         )
 
         else -> {}
@@ -94,7 +95,7 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
 private fun NotificationContent(
     notifications: Map<LocalDate, List<ScheduleDiffNotification>> = mapOf(),
     onSelect: (id: String) -> Unit = {},
-    onDelete: (date: LocalDate, id: String) -> Unit = { _, _ -> }
+    onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true }
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -162,7 +163,7 @@ private fun NotificationCard(
     item: ScheduleDiffNotification,
     modifier: Modifier = Modifier,
     onSelect: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onDelete: suspend () -> Boolean = { true }
 ) {
     SwipeToDismissNotification(modifier = modifier, onDismiss = onDelete) {
         Card(
@@ -219,16 +220,14 @@ private fun colorsForNotificationCard(read: Boolean = false): CardColors {
 @Composable
 private fun SwipeToDismissNotification(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit = {},
+    onDismiss: suspend () -> Boolean = { true },
     dismissContent: @Composable RowScope.() -> Unit
 ) {
     val view = LocalView.current
     val dismissState = rememberDismissState()
     var firstComposition by remember { mutableStateOf(true) }
-
-    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-        onDismiss()
-    }
+    val snackbarState = LocalSnackbarState.current
+    val context = LocalContext.current
 
     SwipeToDismiss(
         modifier = modifier,
@@ -248,6 +247,17 @@ private fun SwipeToDismissNotification(
             HapticFeedbackConstants.LONG_PRESS,
             HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
         )
+    }
+
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+            val success = onDismiss()
+            if (!success) {
+                val error = context.getString(R.string.something_went_wrong)
+                snackbarState.showSnackbar(message = error)
+                dismissState.reset()
+            }
+        }
     }
 }
 

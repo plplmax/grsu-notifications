@@ -8,7 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -31,12 +35,23 @@ class NotificationViewModel(
         }
     }
 
-    fun deleteNotification(date: LocalDate, id: String) {
-        val currentState = uiState
-        if (currentState is UiState.Loaded) {
-            val updatedMap = currentState.notifications.toMutableMap()
-            updatedMap[date] = updatedMap[date]!!.filterNot { it.id == id }
-            uiState = UiState.Loaded(updatedMap)
+    fun deleteNotificationAsync(date: LocalDate, id: String): Deferred<Boolean> {
+        return viewModelScope.async(ioDispatcher) {
+            try {
+                notifications.deleteById(id)
+                val currentState = uiState
+                if (currentState is UiState.Loaded) {
+                    // @todo maybe add mutex to prevent data race when user deletes multiple notifications
+                    val updatedMap = currentState.notifications.toMutableMap()
+                    updatedMap[date] =
+                        updatedMap[date]?.filterNot { it.id == id } ?: return@async true
+                    uiState = UiState.Loaded(updatedMap)
+                }
+                true
+            } catch (_: Exception) {
+                currentCoroutineContext().ensureActive()
+                false
+            }
         }
     }
 
