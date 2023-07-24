@@ -51,6 +51,7 @@ class App : Application(), Configuration.Provider {
                 deps.userRepository,
                 deps.scheduleRepository,
                 deps.diffedScheduleRepository,
+                deps.scheduleNotifications,
                 deps.scheduleNotificationChannel,
                 deps.resources
             )
