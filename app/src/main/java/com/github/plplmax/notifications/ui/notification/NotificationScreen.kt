@@ -63,6 +63,9 @@ import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
 import com.github.plplmax.notifications.ui.navigation.Routes
 import com.github.plplmax.notifications.ui.progress.ProgressIndicator
+import com.github.plplmax.notifications.ui.refresh.PullRefreshIndicator
+import com.github.plplmax.notifications.ui.refresh.pullRefresh
+import com.github.plplmax.notifications.ui.refresh.rememberPullRefreshState
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.time.LocalDate
@@ -95,7 +98,8 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
             is NotificationViewModel.UiState.Loaded -> NotificationContent(
                 notifications = state.notifications,
                 onSelect = onSelect,
-                onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() }
+                onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() },
+                onRefresh = viewModel::loadNotifications
             )
 
             is NotificationViewModel.UiState.Loading -> ProgressIndicator()
@@ -108,32 +112,57 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
 private fun NotificationContent(
     notifications: Map<LocalDate, List<ShortScheduleDiffNotification>> = mapOf(),
     onSelect: (id: String) -> Unit = {},
-    onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true }
+    onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true },
+    onRefresh: () -> Unit = {}
 ) {
     if (notifications.isEmpty()) {
         NoNotificationsText()
         return
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        contentPadding = PaddingValues(all = 14.dp)
-    ) {
-        for ((date, notifs) in notifications) {
-            if (notifs.isEmpty()) continue
-            // @todo maybe invoke date.toString() as key
-            item(key = date) { DateText(date = date, modifier = Modifier.animateItemPlacement()) }
-            items(items = notifs, key = { it.id }) { item ->
-                NotificationCard(
-                    item = item,
-                    modifier = Modifier.animateItemPlacement(),
-                    onSelect = { onSelect(item.id) },
-                    onDelete = { onDelete(date, item.id) }
-                )
+    PullToRefresh(onRefresh = onRefresh) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(all = 14.dp)
+        ) {
+            for ((date, notifs) in notifications) {
+                if (notifs.isEmpty()) continue
+                // @todo maybe invoke date.toString() as key
+                item(key = date) {
+                    DateText(
+                        date = date,
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                }
+                items(items = notifs, key = { it.id }) { item ->
+                    NotificationCard(
+                        item = item,
+                        modifier = Modifier.animateItemPlacement(),
+                        onSelect = { onSelect(item.id) },
+                        onDelete = { onDelete(date, item.id) }
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun PullToRefresh(
+    onRefresh: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    val pullRefreshState = rememberPullRefreshState(refreshing = false, onRefresh = onRefresh)
+
+    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
+        content()
+        PullRefreshIndicator(
+            refreshing = false,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

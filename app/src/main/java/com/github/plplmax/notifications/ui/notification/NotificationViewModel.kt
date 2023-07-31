@@ -27,13 +27,15 @@ class NotificationViewModel(
         private set
 
     init {
-        initState()
+        loadNotifications()
     }
 
-    private fun initState() {
+    fun loadNotifications() {
+        uiState = UiState.Loading
         viewModelScope.launch(ioDispatcher) {
             val result = notifications.notifications()
             val groupedByCreated = result.groupBy { it.created.toLocalDate() }
+            cachedNotifications.clear()
             cachedNotifications.putAll(groupedByCreated)
             uiState = UiState.Loaded(cachedNotifications)
         }
