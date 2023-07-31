@@ -7,6 +7,7 @@ import com.github.plplmax.notifications.notification.ShortScheduleDiffNotificati
 import com.github.plplmax.notifications.notification.toData
 import com.github.plplmax.notifications.notification.toRealm
 import com.github.plplmax.notifications.notification.toShortData
+import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,7 @@ class LocalScheduleNotifications(
             database.instance().use { realm ->
                 realm.where<ScheduleDiffNotificationRealm>()
                     .findAll()
+                    .sort("created", Sort.DESCENDING)
                     .let(realm::copyFromRealm)
                     .map(ScheduleDiffNotificationRealm::toShortData)
             }
