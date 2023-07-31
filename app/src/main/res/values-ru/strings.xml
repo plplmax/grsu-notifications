@@ -32,4 +32,5 @@
     <string name="diff">Разница</string>
     <string name="today">Сегодня</string>
     <string name="yesterday">Вчера</string>
+    <string name="no_notifications_yet">Пока нет уведомлений</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.github.plplmax.notifications.ui.notification
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -20,6 +22,8 @@ class NotificationViewModel(
     private val notifications: ScheduleNotifications,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+    private val cachedNotifications: MutableMap<LocalDate, List<ShortScheduleDiffNotification>> =
+        mutableStateMapOf()
     var uiState: UiState by mutableStateOf(UiState.Loading)
         private set
 
@@ -31,7 +35,8 @@ class NotificationViewModel(
         viewModelScope.launch(ioDispatcher) {
             val result = notifications.notifications()
             val groupedByCreated = result.groupBy { it.created.toLocalDate() }
-            uiState = UiState.Loaded(groupedByCreated)
+            cachedNotifications.putAll(groupedByCreated)
+            uiState = UiState.Loaded(cachedNotifications)
         }
     }
 
@@ -39,13 +44,10 @@ class NotificationViewModel(
         return viewModelScope.async(ioDispatcher) {
             try {
                 notifications.deleteById(id)
-                val currentState = uiState
-                if (currentState is UiState.Loaded) {
-                    // @todo maybe add mutex to prevent data race when user deletes multiple notifications
-                    val updatedMap = currentState.notifications.toMutableMap()
-                    updatedMap[date] =
-                        updatedMap[date]?.filterNot { it.id == id } ?: return@async true
-                    uiState = UiState.Loaded(updatedMap)
+                // @todo maybe add mutex to prevent data race when user deletes multiple notifications
+                cachedNotifications.computeIfPresent(date) { _, notifications ->
+                    val updatedNotifications = notifications.filterNot { it.id == id }
+                    updatedNotifications.ifEmpty { null }
                 }
                 true
             } catch (_: Exception) {

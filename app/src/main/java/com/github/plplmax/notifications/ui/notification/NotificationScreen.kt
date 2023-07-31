@@ -102,6 +102,11 @@ private fun NotificationContent(
     onSelect: (id: String) -> Unit = {},
     onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true }
 ) {
+    if (notifications.isEmpty()) {
+        NoNotificationsText()
+        return
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -121,6 +126,13 @@ private fun NotificationContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NoNotificationsText() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = stringResource(R.string.no_notifications_yet))
     }
 }
 
