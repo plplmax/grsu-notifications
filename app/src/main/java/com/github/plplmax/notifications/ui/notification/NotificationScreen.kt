@@ -172,6 +172,7 @@ private fun getLocalizedDateFormatter(date: LocalDate, locale: Locale): DateTime
         locale
     )
     val removeYearRegex = remember(pattern) {
+        // https://stackoverflow.com/a/12490796/17650498
         Regex(if (pattern.contains("de")) "[^Mm]*[Yy]+[^Mm]*" else "[^DdMm]*[Yy]+[^DdMm]*")
     }
     val showYear = date.year != today.year
