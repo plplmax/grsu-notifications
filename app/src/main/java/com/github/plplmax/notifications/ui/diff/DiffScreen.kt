@@ -46,7 +46,7 @@ fun DiffScreen(id: String) {
         ((context as MainActivity).application) as App
     }
     val viewModel = viewModel(initializer = {
-        DiffViewModel(app.deps.diffedScheduleRepository)
+        DiffViewModel(app.deps.scheduleNotifications)
     })
     LaunchedEffect(id) {
         viewModel.loadScheduleById(id)

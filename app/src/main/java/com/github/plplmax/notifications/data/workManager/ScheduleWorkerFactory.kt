@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
@@ -14,7 +13,6 @@ import com.github.plplmax.notifications.resources.Resources
 class ScheduleWorkerFactory(
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val diffedScheduleRepository: DiffedScheduleRepository,
     private val scheduleNotifications: ScheduleNotifications,
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
@@ -29,7 +27,6 @@ class ScheduleWorkerFactory(
             workerParameters,
             userRepository,
             scheduleRepository,
-            diffedScheduleRepository,
             scheduleNotifications,
             notificationChannel,
             resources

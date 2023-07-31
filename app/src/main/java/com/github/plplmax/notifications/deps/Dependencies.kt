@@ -4,9 +4,6 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.github.plplmax.notifications.data.database.Database
 import com.github.plplmax.notifications.data.database.RealmDatabase
-import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
-import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepositoryImpl
-import com.github.plplmax.notifications.data.diffedSchedule.local.DiffedScheduleLocalDataSourceImpl
 import com.github.plplmax.notifications.data.notification.LocalScheduleNotifications
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
@@ -48,12 +45,6 @@ class Dependencies(context: Context) {
         ScheduleRepositoryImpl(
             ScheduleRemoteDataSourceImpl(httpClient),
             ScheduleLocalDataSourceImpl(database)
-        )
-    }
-
-    val diffedScheduleRepository: DiffedScheduleRepository by lazy {
-        DiffedScheduleRepositoryImpl(
-            DiffedScheduleLocalDataSourceImpl(database)
         )
     }
 

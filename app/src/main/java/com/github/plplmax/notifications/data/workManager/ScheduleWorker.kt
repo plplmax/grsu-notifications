@@ -5,12 +5,12 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
-import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.notification.NotificationType
+import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.notification.ScheduleNotification
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
@@ -25,7 +25,6 @@ class ScheduleWorker(
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val diffedScheduleRepository: DiffedScheduleRepository,
     private val scheduleNotifications: ScheduleNotifications,
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
@@ -64,7 +63,8 @@ class ScheduleWorker(
 
         scheduleRepository.deleteSchedule()
         scheduleRepository.save(newSchedule)
-        val diffId = diffedScheduleRepository.save(diffedSchedule)
+        val diffNotification = ScheduleDiffNotification(diff = diffedSchedule)
+        scheduleNotifications.save(diffNotification)
 
         if (oldScheduleResult.isEmpty()) {
             ScheduleNotification(

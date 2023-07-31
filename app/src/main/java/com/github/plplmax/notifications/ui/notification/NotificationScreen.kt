@@ -57,7 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
+import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.time.LocalDate
@@ -93,7 +93,7 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NotificationContent(
-    notifications: Map<LocalDate, List<ScheduleDiffNotification>> = mapOf(),
+    notifications: Map<LocalDate, List<ShortScheduleDiffNotification>> = mapOf(),
     onSelect: (id: String) -> Unit = {},
     onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true }
 ) {
@@ -160,7 +160,7 @@ private fun getLocalizedDateFormatter(date: LocalDate, locale: Locale): DateTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NotificationCard(
-    item: ScheduleDiffNotification,
+    item: ShortScheduleDiffNotification,
     modifier: Modifier = Modifier,
     onSelect: () -> Unit = {},
     onDelete: suspend () -> Boolean = { true }
@@ -312,18 +312,22 @@ private fun NotificationContentPreview() {
             NotificationContent(
                 notifications = mapOf(
                     LocalDate.now() to listOf(
-                        ScheduleDiffNotification("1", false, ZonedDateTime.now().minusHours(5)),
-                        ScheduleDiffNotification("2", true, ZonedDateTime.now()),
+                        ShortScheduleDiffNotification(
+                            "1",
+                            false,
+                            ZonedDateTime.now().minusHours(5)
+                        ),
+                        ShortScheduleDiffNotification("2", true, ZonedDateTime.now()),
                     ),
                     LocalDate.now().minusDays(1) to listOf(
-                        ScheduleDiffNotification("3", false, ZonedDateTime.now()),
-                        ScheduleDiffNotification("4", true, ZonedDateTime.now()),
+                        ShortScheduleDiffNotification("3", false, ZonedDateTime.now()),
+                        ShortScheduleDiffNotification("4", true, ZonedDateTime.now()),
                     ),
                     LocalDate.now().minusDays(2) to listOf(
-                        ScheduleDiffNotification("5", false, ZonedDateTime.now()),
+                        ShortScheduleDiffNotification("5", false, ZonedDateTime.now()),
                     ),
                     LocalDate.now().minusYears(1) to listOf(
-                        ScheduleDiffNotification("6", false, ZonedDateTime.now()),
+                        ShortScheduleDiffNotification("6", false, ZonedDateTime.now()),
                     )
                 )
             )

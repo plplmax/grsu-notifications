@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
+import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +57,8 @@ class NotificationViewModel(
 
     sealed class UiState {
         object Loading : UiState()
-        class Loaded(val notifications: Map<LocalDate, List<ScheduleDiffNotification>>) : UiState()
+        class Loaded(
+            val notifications: Map<LocalDate, List<ShortScheduleDiffNotification>>
+        ) : UiState()
     }
 }
