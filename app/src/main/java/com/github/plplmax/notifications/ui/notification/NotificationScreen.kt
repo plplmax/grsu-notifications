@@ -2,6 +2,8 @@ package com.github.plplmax.notifications.ui.notification
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -58,6 +60,7 @@ import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
+import com.github.plplmax.notifications.ui.progress.ProgressIndicator
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.time.LocalDate
@@ -69,6 +72,7 @@ import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
 import java.util.Locale
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
     val context = LocalContext.current
@@ -78,15 +82,16 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
     val viewModel = viewModel(initializer = {
         NotificationViewModel(notifications = app.deps.scheduleNotifications)
     })
-    when (val state = viewModel.uiState) {
-        // @todo handle loading state
-        is NotificationViewModel.UiState.Loaded -> NotificationContent(
-            notifications = state.notifications,
-            onSelect = onSelect,
-            onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() }
-        )
+    AnimatedContent(targetState = viewModel.uiState) { state ->
+        when (state) {
+            is NotificationViewModel.UiState.Loaded -> NotificationContent(
+                notifications = state.notifications,
+                onSelect = onSelect,
+                onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() }
+            )
 
-        else -> {}
+            is NotificationViewModel.UiState.Loading -> ProgressIndicator()
+        }
     }
 }
 
