@@ -2,6 +2,7 @@ package com.github.plplmax.notifications.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,9 +15,9 @@ import com.github.plplmax.notifications.ui.welcome.WelcomeScreen
 @Composable
 fun AppNavHost(
     viewModel: MainViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
 ) {
-    val navController = rememberNavController()
     val startDestination = when (val destination = viewModel.startDestination) {
         is Routes.Undefined -> return
         else -> destination.route

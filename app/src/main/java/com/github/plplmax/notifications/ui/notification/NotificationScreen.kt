@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
@@ -60,6 +61,7 @@ import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
+import com.github.plplmax.notifications.ui.navigation.Routes
 import com.github.plplmax.notifications.ui.progress.ProgressIndicator
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
@@ -71,6 +73,12 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
 import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NotificationTopAppBar() {
+    TopAppBar(title = { Text(text = stringResource(Routes.Notifications.title)) })
+}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
