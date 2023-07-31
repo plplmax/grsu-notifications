@@ -55,6 +55,7 @@ class LocalScheduleNotifications(
             database.instance().use { realm ->
                 realm.where<ScheduleDiffNotificationRealm>()
                     .findAll()
+                    .let(realm::copyFromRealm)
                     .map(ScheduleDiffNotificationRealm::toShortData)
             }
         }
