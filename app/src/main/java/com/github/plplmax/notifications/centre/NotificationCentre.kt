@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.centre
 
 import android.app.Notification
 import androidx.core.app.NotificationChannelCompat

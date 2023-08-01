@@ -8,11 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
+import com.github.plplmax.notifications.centre.NotificationCentre
 import com.github.plplmax.notifications.data.Errors
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.data.workManager.ScheduleWorker
-import com.github.plplmax.notifications.notification.NotificationCentre
 import com.github.plplmax.notifications.ui.navigation.Routes
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

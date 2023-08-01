@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
+import com.github.plplmax.notifications.centre.NotificationCentre
 
 interface ScheduleNotificationChannel : NotificationChannel {
     fun cancelFailedNotifications()
