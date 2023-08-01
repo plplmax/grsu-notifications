@@ -1,6 +1,7 @@
 package com.github.plplmax.notifications.notification
 
 import androidx.core.app.NotificationCompat
+import com.github.plplmax.notifications.channel.NotificationChannel
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.*

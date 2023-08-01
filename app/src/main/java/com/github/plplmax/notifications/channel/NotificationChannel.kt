@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.channel
 
 import android.app.Notification
 import android.app.PendingIntent

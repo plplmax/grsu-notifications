@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.github.plplmax.notifications.centre.AppNotificationCentre
 import com.github.plplmax.notifications.centre.NotificationCentre
+import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
+import com.github.plplmax.notifications.channel.ScheduleNotificationChannelOf
 import com.github.plplmax.notifications.data.database.Database
 import com.github.plplmax.notifications.data.database.RealmDatabase
 import com.github.plplmax.notifications.data.notification.LocalScheduleNotifications
@@ -16,7 +18,6 @@ import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.data.user.UserRepositoryImpl
 import com.github.plplmax.notifications.data.user.local.LocalUserDataSourceImpl
 import com.github.plplmax.notifications.data.user.remote.RemoteUserDataSourceImpl
-import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.AppResources
 import com.github.plplmax.notifications.resources.Resources
 import okhttp3.OkHttpClient
@@ -57,7 +58,7 @@ class Dependencies(context: Context) {
     }
 
     val scheduleNotificationChannel: ScheduleNotificationChannel by lazy {
-        ScheduleNotificationChannel.Base(context, notificationCentre)
+        ScheduleNotificationChannelOf(context, notificationCentre)
     }
 
     private val database: Database by lazy { RealmDatabase() }

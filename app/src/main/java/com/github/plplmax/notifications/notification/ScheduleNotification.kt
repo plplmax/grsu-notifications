@@ -1,6 +1,7 @@
 package com.github.plplmax.notifications.notification
 
 import androidx.core.app.NotificationCompat
+import com.github.plplmax.notifications.channel.NotificationChannel
 
 class ScheduleNotification(
     private val title: String,
