@@ -63,8 +63,6 @@ class ScheduleWorker(
 
         scheduleRepository.deleteSchedule()
         scheduleRepository.save(newSchedule)
-        val diffNotification = ScheduleDiffNotification(diff = diffedSchedule)
-        scheduleNotifications.save(diffNotification)
 
         if (oldScheduleResult.isEmpty()) {
             ScheduleNotification(
@@ -72,6 +70,9 @@ class ScheduleWorker(
                 text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
         } else if (diffedSchedule.days.isNotEmpty()) {
+            val diffNotification = ScheduleDiffNotification(diff = diffedSchedule)
+            scheduleNotifications.save(diffNotification)
+
             ScheduleNotification(
                 title = resources.string(R.string.schedule_updated),
                 text = resources.string(R.string.tap_to_view_schedule)
