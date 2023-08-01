@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +27,7 @@ class NotificationViewModel(
 ) : ViewModel() {
     private val cachedNotifications: MutableMap<LocalDate, List<ShortScheduleDiffNotification>> =
         mutableStateMapOf()
-    var uiState: UiState by mutableStateOf(UiState.Loading)
+    var uiState: UiState by mutableStateOf(UiState.Loading, referentialEqualityPolicy())
         private set
 
     init {
