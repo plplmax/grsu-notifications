@@ -17,7 +17,7 @@ import com.github.plplmax.notifications.data.user.remote.RemoteUserDataSourceImp
 import com.github.plplmax.notifications.notification.GrsuNotificationCentre
 import com.github.plplmax.notifications.notification.NotificationCentre
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
-import com.github.plplmax.notifications.resources.GrsuResources
+import com.github.plplmax.notifications.resources.AppResources
 import com.github.plplmax.notifications.resources.Resources
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -32,7 +32,7 @@ class Dependencies(context: Context) {
         ).build()
     }
 
-    val resources: Resources by lazy { GrsuResources(context) }
+    val resources: Resources by lazy { AppResources(context) }
 
     val userRepository: UserRepository by lazy {
         UserRepositoryImpl(
