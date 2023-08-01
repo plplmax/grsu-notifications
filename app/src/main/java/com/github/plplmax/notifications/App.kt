@@ -3,10 +3,10 @@ package com.github.plplmax.notifications
 import android.app.Application
 import android.os.Build
 import androidx.work.Configuration
+import com.github.plplmax.notifications.crashlytics.CrashlyticsTree
 import com.github.plplmax.notifications.data.workManager.ScheduleWorkerFactory
 import com.github.plplmax.notifications.deps.Dependencies
 import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
-import com.github.plplmax.notifications.timber.CrashlyticsTree
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import timber.log.Timber
