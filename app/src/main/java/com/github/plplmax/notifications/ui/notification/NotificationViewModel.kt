@@ -73,6 +73,6 @@ class NotificationViewModel(
             val notifications: Map<LocalDate, List<ShortScheduleDiffNotification>>
         ) : UiState()
 
-        data class Error(@StringRes val message: Int) : UiState()
+        class Error(@StringRes val message: Int) : UiState()
     }
 }
