@@ -67,6 +67,7 @@ import com.github.plplmax.notifications.ui.refresh.PullRefreshIndicator
 import com.github.plplmax.notifications.ui.refresh.pullRefresh
 import com.github.plplmax.notifications.ui.refresh.rememberPullRefreshState
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
+import com.github.plplmax.notifications.ui.snackbar.Snackbar
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.time.LocalDate
 import java.time.LocalTime
@@ -103,8 +104,24 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
             )
 
             is NotificationViewModel.UiState.Loading -> ProgressIndicator()
+            is NotificationViewModel.UiState.Error -> ErrorContent(
+                message = stringResource(state.message),
+                onRetry = viewModel::loadNotifications
+            )
         }
     }
+}
+
+@Composable
+private fun ErrorContent(message: String, onRetry: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = stringResource(R.string.failed_to_load_notifications))
+    }
+    Snackbar(
+        message = message,
+        actionLabel = stringResource(R.string.retry),
+        onActionPerformed = onRetry
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
