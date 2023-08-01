@@ -68,11 +68,10 @@ class NotificationViewModel(
     }
 
     sealed class UiState {
+        class Error(@StringRes val message: Int) : UiState()
         object Loading : UiState()
         class Loaded(
             val notifications: Map<LocalDate, List<ShortScheduleDiffNotification>>
         ) : UiState()
-
-        class Error(@StringRes val message: Int) : UiState()
     }
 }
