@@ -33,7 +33,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
@@ -63,6 +62,7 @@ import com.github.plplmax.notifications.MainViewModel
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.UiState
 import com.github.plplmax.notifications.data.Constants
+import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
 import kotlin.contracts.ExperimentalContracts
@@ -70,7 +70,6 @@ import kotlin.contracts.contract
 
 @Composable
 fun LoginScreen(viewModel: MainViewModel) {
-    val snackbarHostState = remember { SnackbarHostState() }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,13 +81,8 @@ fun LoginScreen(viewModel: MainViewModel) {
             startUpdates = viewModel::startUpdates,
             stopUpdates = viewModel::stopUpdates,
             clearError = viewModel::clearError,
-            needPermission = viewModel::needRequestNotificationsPermission,
-            snackbarHostState = snackbarHostState
+            needPermission = viewModel::needRequestNotificationsPermission
         )
-    }
-
-    Box(contentAlignment = Alignment.BottomCenter) {
-        SnackbarHost(hostState = snackbarHostState)
     }
 }
 
@@ -113,12 +107,12 @@ private fun LoginContent(
     startUpdates: (String) -> Unit = {},
     stopUpdates: () -> Unit = {},
     clearError: () -> Unit = {},
-    needPermission: () -> Boolean = { false },
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    needPermission: () -> Boolean = { false }
 ) {
     var login by rememberSaveable { mutableStateOf("") }
     var dialogVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarState.current
     val coroutineScope = rememberCoroutineScope()
     val permissionLauncher = rememberPermissionLauncher(
         allowed = { startUpdates(login) },

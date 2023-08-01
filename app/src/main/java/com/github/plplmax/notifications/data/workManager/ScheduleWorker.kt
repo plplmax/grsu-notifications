@@ -5,7 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
-import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
+import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
@@ -25,7 +25,7 @@ class ScheduleWorker(
     workerParams: WorkerParameters,
     private val userRepository: UserRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val diffedScheduleRepository: DiffedScheduleRepository,
+    private val scheduleNotifications: ScheduleNotifications,
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
@@ -63,7 +63,6 @@ class ScheduleWorker(
 
         scheduleRepository.deleteSchedule()
         scheduleRepository.save(newSchedule)
-        val diffId = diffedScheduleRepository.save(diffedSchedule)
 
         if (oldScheduleResult.isEmpty()) {
             ScheduleNotification(
@@ -71,8 +70,10 @@ class ScheduleWorker(
                 text = resources.string(R.string.how_application_works)
             ).send(notificationChannel)
         } else if (diffedSchedule.days.isNotEmpty()) {
-            ScheduleDiffNotification(
-                id = diffId,
+            val diffNotification = ScheduleDiffNotification(diff = diffedSchedule)
+            scheduleNotifications.save(diffNotification)
+
+            ScheduleNotification(
                 title = resources.string(R.string.schedule_updated),
                 text = resources.string(R.string.tap_to_view_schedule)
             ).send(notificationChannel)

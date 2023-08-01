@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.plplmax.notifications.data.diffedSchedule.DiffedScheduleRepository
+import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 class DiffViewModel(
-    private val scheduleRepository: DiffedScheduleRepository,
+    private val scheduleNotifications: ScheduleNotifications,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     var state: UiState by mutableStateOf(UiState.Loading)
@@ -23,12 +23,12 @@ class DiffViewModel(
     fun loadScheduleById(id: String) {
         viewModelScope.launch(ioDispatcher) {
             state = try {
-                val schedule = scheduleRepository.scheduleById(id)
-                val newState = if (schedule.isEmpty()) {
+                val notificationResult = scheduleNotifications.notificationById(id)
+                val newState = if (notificationResult.isEmpty()) {
                     // @todo replace string literal with the constant
                     UiState.Error("Schedule not found")
                 } else {
-                    UiState.Loaded(schedule.first())
+                    UiState.Loaded(notificationResult.first().diff)
                 }
                 newState
             } catch (_: Exception) {

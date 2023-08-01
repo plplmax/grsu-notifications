@@ -27,4 +27,11 @@
     <string name="stay_up_to_date_on_your_schedule">Будьте в курсе изменений расписания ГрГУ!</string>
     <string name="get_started">Начать</string>
     <string name="welcome">Добро пожаловать</string>
+    <string name="schedule_changed">Расписание было обновлено</string>
+    <string name="notifications">Уведомления</string>
+    <string name="diff">Разница</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="no_notifications_yet">Пока нет уведомлений</string>
+    <string name="failed_to_load_notifications">Не удалось загрузить уведомления</string>
 </resources>

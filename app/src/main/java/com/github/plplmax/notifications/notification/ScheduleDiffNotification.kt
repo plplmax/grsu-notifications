@@ -1,27 +1,23 @@
 package com.github.plplmax.notifications.notification
 
-import android.content.Intent
-import androidx.core.app.NotificationCompat
-import androidx.core.net.toUri
+import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
+import com.github.plplmax.notifications.data.schedule.models.toRealm
+import org.bson.types.ObjectId
+import java.time.ZonedDateTime
+import java.util.Date
 
-class ScheduleDiffNotification(
-    private val id: String,
-    private val title: String,
-    private val text: String = "",
-    private val type: NotificationType = NotificationType.SUCCESSFUL,
-) : Notification {
-    override fun send(channel: NotificationChannel) {
-        val url = "https://github.com/plplmax/grsu-notifications?id=$id"
-        val pendingIntent = channel.pendingIntent {
-            action = Intent.ACTION_VIEW
-            data = url.toUri()
-        }
-        channel.builder
-            .setContentTitle(this.title)
-            .setContentText(this.text)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(this.text))
-            .setContentIntent(pendingIntent)
-            .build()
-            .also { channel.send(type.id, it) }
+data class ScheduleDiffNotification(
+    val id: String = "",
+    val read: Boolean = false,
+    val created: ZonedDateTime = ZonedDateTime.now(),
+    val diff: DiffedSchedule = DiffedSchedule()
+)
+
+fun ScheduleDiffNotification.toRealm(): ScheduleDiffNotificationRealm {
+    return ScheduleDiffNotificationRealm().apply {
+        id = if (this@toRealm.id.isEmpty()) ObjectId() else ObjectId(this@toRealm.id)
+        read = this@toRealm.read
+        created = Date.from(this@toRealm.created.toInstant())
+        diff = this@toRealm.diff.toRealm()
     }
 }
