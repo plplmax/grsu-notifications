@@ -51,9 +51,9 @@ class NotificationViewModel(
     }
 
     fun deleteNotificationAsync(date: LocalDate, id: String): Deferred<Boolean> {
-        return viewModelScope.async(ioDispatcher) {
+        return viewModelScope.async {
             try {
-                notifications.deleteById(id)
+                withContext(ioDispatcher) { notifications.deleteById(id) }
                 // @todo maybe add mutex to prevent data race when user deletes multiple notifications
                 cachedNotifications.computeIfPresent(date) { _, notifications ->
                     val updatedNotifications = notifications.filterNot { it.id == id }
