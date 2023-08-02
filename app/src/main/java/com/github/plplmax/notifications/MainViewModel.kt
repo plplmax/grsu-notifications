@@ -12,7 +12,7 @@ import com.github.plplmax.notifications.centre.NotificationCentre
 import com.github.plplmax.notifications.data.Errors
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.data.workManager.ScheduleWorker
+import com.github.plplmax.notifications.data.worker.ScheduleWorker
 import com.github.plplmax.notifications.ui.navigation.Routes
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

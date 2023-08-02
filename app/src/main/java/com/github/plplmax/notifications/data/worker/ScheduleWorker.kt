@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.data.workManager
+package com.github.plplmax.notifications.data.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker

@@ -5,7 +5,7 @@ import android.os.Build
 import androidx.work.Configuration
 import com.github.plplmax.notifications.channel.ScheduleNotificationChannelOf
 import com.github.plplmax.notifications.crashlytics.CrashlyticsTree
-import com.github.plplmax.notifications.data.workManager.ScheduleWorkerFactory
+import com.github.plplmax.notifications.data.worker.ScheduleWorkerFactory
 import com.github.plplmax.notifications.deps.Dependencies
 import io.realm.Realm
 import io.realm.RealmConfiguration
