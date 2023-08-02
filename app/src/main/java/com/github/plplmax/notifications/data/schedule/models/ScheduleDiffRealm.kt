@@ -5,10 +5,10 @@ import io.realm.RealmObject
 import io.realm.annotations.RealmClass
 
 @RealmClass(embedded = true)
-open class DiffedScheduleRealm : RealmObject() {
+open class ScheduleDiffRealm : RealmObject() {
     var days: RealmList<DayRealm> = RealmList()
 }
 
-fun DiffedScheduleRealm.toData(): DiffedSchedule {
-    return DiffedSchedule(days = days.map(DayRealm::toData))
+fun ScheduleDiffRealm.toData(): ScheduleDiff {
+    return ScheduleDiff(days = days.map(DayRealm::toData))
 }

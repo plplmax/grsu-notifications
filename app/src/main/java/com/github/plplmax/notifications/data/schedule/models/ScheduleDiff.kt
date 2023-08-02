@@ -4,10 +4,10 @@ import io.realm.RealmList
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DiffedSchedule(val days: List<Day> = listOf())
+data class ScheduleDiff(val days: List<Day> = listOf())
 
-fun DiffedSchedule.toRealm(): DiffedScheduleRealm {
-    return DiffedScheduleRealm().apply {
+fun ScheduleDiff.toRealm(): ScheduleDiffRealm {
+    return ScheduleDiffRealm().apply {
         days = this@toRealm.days.map(Day::toRealm).toTypedArray().let { RealmList(*it) }
     }
 }
