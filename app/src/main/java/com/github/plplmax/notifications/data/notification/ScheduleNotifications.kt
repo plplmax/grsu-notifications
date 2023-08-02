@@ -1,7 +1,7 @@
 package com.github.plplmax.notifications.data.notification
 
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
-import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
+import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotification
+import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
 
 interface ScheduleNotifications {
     suspend fun save(notification: ScheduleDiffNotification)
