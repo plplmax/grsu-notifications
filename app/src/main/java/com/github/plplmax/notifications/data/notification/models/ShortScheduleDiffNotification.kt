@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.data.notification.models
 
 import java.time.ZonedDateTime
 

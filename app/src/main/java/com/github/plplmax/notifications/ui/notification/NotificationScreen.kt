@@ -60,7 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
-import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
+import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
 import com.github.plplmax.notifications.ui.navigation.Routes
 import com.github.plplmax.notifications.ui.progress.ProgressIndicator
 import com.github.plplmax.notifications.ui.refresh.PullRefreshIndicator

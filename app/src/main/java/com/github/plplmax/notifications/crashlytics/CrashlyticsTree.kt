@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.timber
+package com.github.plplmax.notifications.crashlytics
 
 import android.util.Log
 import com.google.firebase.crashlytics.ktx.crashlytics

@@ -1,7 +1,7 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.data.notification.models
 
-import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
-import com.github.plplmax.notifications.data.schedule.models.DiffedScheduleRealm
+import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
+import com.github.plplmax.notifications.data.schedule.models.ScheduleDiffRealm
 import com.github.plplmax.notifications.data.schedule.models.toData
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
@@ -15,7 +15,7 @@ open class ScheduleDiffNotificationRealm : RealmObject() {
     var id: ObjectId = ObjectId()
     var read: Boolean = false
     var created: Date = Date()
-    var diff: DiffedScheduleRealm? = DiffedScheduleRealm()
+    var diff: ScheduleDiffRealm? = ScheduleDiffRealm()
 }
 
 fun ScheduleDiffNotificationRealm.toData(): ScheduleDiffNotification {
@@ -23,7 +23,7 @@ fun ScheduleDiffNotificationRealm.toData(): ScheduleDiffNotification {
         id = id.toString(),
         read = read,
         created = ZonedDateTime.ofInstant(created.toInstant(), ZoneId.systemDefault()),
-        diff = diff?.toData() ?: DiffedSchedule()
+        diff = diff?.toData() ?: ScheduleDiff()
     )
 }
 

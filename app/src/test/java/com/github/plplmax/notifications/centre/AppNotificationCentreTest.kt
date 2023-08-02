@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.centre
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Application
@@ -18,15 +18,15 @@ import org.robolectric.annotation.Config
 
 @Config(application = FakeApp::class)
 @RunWith(AndroidJUnit4::class)
-class GrsuNotificationCentreTest {
+class AppNotificationCentreTest {
     private val app: Application = ApplicationProvider.getApplicationContext()
     private val notificationManager: NotificationManagerCompat = mock()
     private val notificationChannel: NotificationChannelCompat = mock()
-    private lateinit var notificationCentre: GrsuNotificationCentre
+    private lateinit var notificationCentre: AppNotificationCentre
 
     @Before
     fun before() {
-        this.notificationCentre = GrsuNotificationCentre(app, notificationManager)
+        this.notificationCentre = AppNotificationCentre(app, notificationManager)
     }
 
     @Test

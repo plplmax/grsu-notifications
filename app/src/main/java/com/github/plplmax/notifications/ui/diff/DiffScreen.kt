@@ -33,8 +33,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.data.schedule.models.Day
-import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
 import com.github.plplmax.notifications.data.schedule.models.Lesson
+import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 import com.github.plplmax.notifications.data.schedule.models.Teacher
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
@@ -53,7 +53,7 @@ fun DiffScreen(id: String) {
     }
     when (val state = viewModel.state) {
         // @todo show spinner while loading
-        is DiffViewModel.UiState.Loaded -> DiffContent(state.schedule)
+        is DiffViewModel.UiState.Loaded -> DiffContent(state.diff)
         is DiffViewModel.UiState.Error -> Text("Error occurred: ${state.text}")
         is DiffViewModel.UiState.Loading -> Text("Loading...")
     }
@@ -61,7 +61,7 @@ fun DiffScreen(id: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DiffContent(schedule: DiffedSchedule) {
+fun DiffContent(schedule: ScheduleDiff) {
     if (schedule.days.isEmpty()) {
         Text(text = "There are no differences")
         return
@@ -172,7 +172,7 @@ fun DiffContentPreview() {
     }
 }
 
-private val someSchedule = DiffedSchedule(
+private val someSchedule = ScheduleDiff(
     days = listOf(
         Day(
             "11.05.2015", lessons = listOf(

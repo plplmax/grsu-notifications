@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
+import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

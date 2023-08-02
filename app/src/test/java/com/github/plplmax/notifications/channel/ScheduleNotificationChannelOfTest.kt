@@ -1,9 +1,11 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.channel
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.plplmax.notifications.FakeApp
+import com.github.plplmax.notifications.centre.NotificationCentre
+import com.github.plplmax.notifications.notification.NotificationType
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -13,15 +15,15 @@ import org.robolectric.annotation.Config
 
 @Config(application = FakeApp::class)
 @RunWith(AndroidJUnit4::class)
-class ScheduleNotificationChannelTest {
+class ScheduleNotificationChannelOfTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val notificationCentre: NotificationCentre = mock()
     private val notificationId = NotificationType.SUCCESSFUL.id
-    private lateinit var channel: ScheduleNotificationChannel.Base
+    private lateinit var channel: ScheduleNotificationChannelOf
 
     @Before
     fun before() {
-        channel = ScheduleNotificationChannel.Base(context, notificationCentre)
+        channel = ScheduleNotificationChannelOf(context, notificationCentre)
     }
 
     @Test

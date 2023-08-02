@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.centre
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -8,7 +8,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
-class GrsuNotificationCentre(
+class AppNotificationCentre(
     private val context: Context,
     private val manager: NotificationManagerCompat
 ) : NotificationCentre {

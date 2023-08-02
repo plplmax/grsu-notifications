@@ -1,6 +1,6 @@
-package com.github.plplmax.notifications.notification
+package com.github.plplmax.notifications.data.notification.models
 
-import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
+import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 import com.github.plplmax.notifications.data.schedule.models.toRealm
 import org.bson.types.ObjectId
 import java.time.ZonedDateTime
@@ -10,7 +10,7 @@ data class ScheduleDiffNotification(
     val id: String = "",
     val read: Boolean = false,
     val created: ZonedDateTime = ZonedDateTime.now(),
-    val diff: DiffedSchedule = DiffedSchedule()
+    val diff: ScheduleDiff = ScheduleDiff()
 )
 
 fun ScheduleDiffNotification.toRealm(): ScheduleDiffNotificationRealm {

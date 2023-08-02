@@ -1,13 +1,13 @@
-package com.github.plplmax.notifications.data.workManager
+package com.github.plplmax.notifications.data.worker
 
 import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
 
 class ScheduleWorkerFactory(

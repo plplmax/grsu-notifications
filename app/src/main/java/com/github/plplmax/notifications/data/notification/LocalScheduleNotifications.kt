@@ -1,12 +1,12 @@
 package com.github.plplmax.notifications.data.notification
 
 import com.github.plplmax.notifications.data.database.Database
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
-import com.github.plplmax.notifications.notification.ScheduleDiffNotificationRealm
-import com.github.plplmax.notifications.notification.ShortScheduleDiffNotification
-import com.github.plplmax.notifications.notification.toData
-import com.github.plplmax.notifications.notification.toRealm
-import com.github.plplmax.notifications.notification.toShortData
+import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotification
+import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotificationRealm
+import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
+import com.github.plplmax.notifications.data.notification.models.toData
+import com.github.plplmax.notifications.data.notification.models.toRealm
+import com.github.plplmax.notifications.data.notification.models.toShortData
 import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.coroutines.CoroutineDispatcher

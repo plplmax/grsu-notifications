@@ -1,14 +1,14 @@
 package com.github.plplmax.notifications.computed
 
 import com.github.plplmax.notifications.data.schedule.models.Day
-import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
 import com.github.plplmax.notifications.data.schedule.models.Schedule
+import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 
 class ComputedScheduleDiffOf(
     private val old: Schedule,
     private val new: Schedule
 ) : ComputedScheduleDiff {
-    override fun value(): DiffedSchedule {
+    override fun value(): ScheduleDiff {
         val daysDiffNewToOld = new.days.map { newDay ->
             val foundMatches =
                 old.days.find { it.date == newDay.date } ?: kotlin.run {
@@ -34,7 +34,7 @@ class ComputedScheduleDiffOf(
         }
 
         // @todo sort days for date (try to swap addition arguments)
-        return DiffedSchedule(
+        return ScheduleDiff(
             days = daysDiffNewToOld.filter { it.lessons.isNotEmpty() } + daysDiffOldToNew
         )
     }

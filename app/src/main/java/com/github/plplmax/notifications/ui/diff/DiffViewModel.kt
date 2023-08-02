@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.data.schedule.models.DiffedSchedule
+import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -40,7 +40,7 @@ class DiffViewModel(
 
     sealed class UiState {
         object Loading : UiState()
-        data class Loaded(val schedule: DiffedSchedule) : UiState()
+        data class Loaded(val diff: ScheduleDiff) : UiState()
         data class Error(val text: String) : UiState()
     }
 }

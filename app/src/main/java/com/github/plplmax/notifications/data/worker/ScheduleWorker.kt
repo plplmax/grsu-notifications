@@ -1,18 +1,18 @@
-package com.github.plplmax.notifications.data.workManager
+package com.github.plplmax.notifications.data.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.R
+import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
 import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
+import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotification
 import com.github.plplmax.notifications.data.schedule.ScheduleRepository
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.notification.NotificationType
-import com.github.plplmax.notifications.notification.ScheduleDiffNotification
 import com.github.plplmax.notifications.notification.ScheduleNotification
-import com.github.plplmax.notifications.notification.ScheduleNotificationChannel
 import com.github.plplmax.notifications.resources.Resources
 import org.json.JSONObject
 import java.security.MessageDigest
