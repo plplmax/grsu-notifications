@@ -6,13 +6,11 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.data.schedule.ScheduleRepository
-import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.resources.Resources
+import com.github.plplmax.notifications.update.ScheduleDiffUpdate
 
 class ScheduleWorkerFactory(
-    private val userRepository: UserRepository,
-    private val scheduleRepository: ScheduleRepository,
+    private val diffUpdate: ScheduleDiffUpdate,
     private val scheduleNotifications: ScheduleNotifications,
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
@@ -25,8 +23,7 @@ class ScheduleWorkerFactory(
         ScheduleWorker(
             appContext,
             workerParameters,
-            userRepository,
-            scheduleRepository,
+            diffUpdate,
             scheduleNotifications,
             notificationChannel,
             resources

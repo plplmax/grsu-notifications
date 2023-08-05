@@ -48,8 +48,7 @@ class App : Application(), Configuration.Provider {
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder().setWorkerFactory(
             ScheduleWorkerFactory(
-                deps.userRepository,
-                deps.scheduleRepository,
+                deps.scheduleDiffUpdate,
                 deps.scheduleNotifications,
                 deps.scheduleNotificationChannel,
                 deps.resources

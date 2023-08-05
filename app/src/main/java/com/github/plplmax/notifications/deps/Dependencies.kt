@@ -20,6 +20,8 @@ import com.github.plplmax.notifications.data.user.local.LocalUserDataSourceImpl
 import com.github.plplmax.notifications.data.user.remote.RemoteUserDataSourceImpl
 import com.github.plplmax.notifications.resources.AppResources
 import com.github.plplmax.notifications.resources.Resources
+import com.github.plplmax.notifications.update.ScheduleDiffUpdate
+import com.github.plplmax.notifications.update.ScheduleDiffUpdateOf
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import timber.log.Timber
@@ -51,6 +53,10 @@ class Dependencies(context: Context) {
 
     val scheduleNotifications: ScheduleNotifications by lazy {
         LocalScheduleNotifications(database)
+    }
+
+    val scheduleDiffUpdate: ScheduleDiffUpdate by lazy {
+        ScheduleDiffUpdateOf(userRepository, scheduleRepository)
     }
 
     val notificationCentre: NotificationCentre by lazy {
