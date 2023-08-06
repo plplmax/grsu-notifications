@@ -10,10 +10,11 @@ import com.github.plplmax.notifications.data.database.Database
 import com.github.plplmax.notifications.data.database.RealmDatabase
 import com.github.plplmax.notifications.data.notification.LocalScheduleNotifications
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.data.schedule.ScheduleRepository
-import com.github.plplmax.notifications.data.schedule.ScheduleRepositoryImpl
-import com.github.plplmax.notifications.data.schedule.local.ScheduleLocalDataSourceImpl
-import com.github.plplmax.notifications.data.schedule.remote.ScheduleRemoteDataSourceImpl
+import com.github.plplmax.notifications.data.schedule.LocalSchedules
+import com.github.plplmax.notifications.data.schedule.LoggedSchedules
+import com.github.plplmax.notifications.data.schedule.MappedSchedules
+import com.github.plplmax.notifications.data.schedule.RemoteSchedules
+import com.github.plplmax.notifications.data.schedule.Schedules
 import com.github.plplmax.notifications.data.user.UserRepository
 import com.github.plplmax.notifications.data.user.UserRepositoryImpl
 import com.github.plplmax.notifications.data.user.local.LocalUserDataSourceImpl
@@ -44,10 +45,14 @@ class Dependencies(context: Context) {
         )
     }
 
-    val scheduleRepository: ScheduleRepository by lazy {
-        ScheduleRepositoryImpl(
-            ScheduleRemoteDataSourceImpl(httpClient),
-            ScheduleLocalDataSourceImpl(database)
+    val schedules: Schedules by lazy {
+        LoggedSchedules(
+            MappedSchedules(
+                LocalSchedules(
+                    RemoteSchedules(httpClient),
+                    database
+                )
+            )
         )
     }
 
@@ -56,7 +61,7 @@ class Dependencies(context: Context) {
     }
 
     val scheduleDiffUpdate: ScheduleDiffUpdate by lazy {
-        ScheduleDiffUpdateOf(userRepository, scheduleRepository)
+        ScheduleDiffUpdateOf(userRepository, schedules)
     }
 
     val notificationCentre: NotificationCentre by lazy {
