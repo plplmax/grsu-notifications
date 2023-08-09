@@ -15,10 +15,11 @@ import com.github.plplmax.notifications.data.schedule.LoggedSchedules
 import com.github.plplmax.notifications.data.schedule.MappedSchedules
 import com.github.plplmax.notifications.data.schedule.RemoteSchedules
 import com.github.plplmax.notifications.data.schedule.Schedules
-import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.data.user.UserRepositoryImpl
-import com.github.plplmax.notifications.data.user.local.LocalUserDataSourceImpl
-import com.github.plplmax.notifications.data.user.remote.RemoteUserDataSourceImpl
+import com.github.plplmax.notifications.data.user.LocalUsers
+import com.github.plplmax.notifications.data.user.LoggedUsers
+import com.github.plplmax.notifications.data.user.MappedUsers
+import com.github.plplmax.notifications.data.user.RemoteUsers
+import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.resources.AppResources
 import com.github.plplmax.notifications.resources.Resources
 import com.github.plplmax.notifications.update.ScheduleDiffUpdate
@@ -38,10 +39,14 @@ class Dependencies(context: Context) {
 
     val resources: Resources by lazy { AppResources(context) }
 
-    val userRepository: UserRepository by lazy {
-        UserRepositoryImpl(
-            RemoteUserDataSourceImpl(httpClient),
-            LocalUserDataSourceImpl(context)
+    val users: Users by lazy {
+        LoggedUsers(
+            MappedUsers(
+                LocalUsers(
+                    context,
+                    RemoteUsers(httpClient),
+                )
+            )
         )
     }
 
@@ -61,7 +66,7 @@ class Dependencies(context: Context) {
     }
 
     val scheduleDiffUpdate: ScheduleDiffUpdate by lazy {
-        ScheduleDiffUpdateOf(userRepository, schedules)
+        ScheduleDiffUpdateOf(users, schedules)
     }
 
     val notificationCentre: NotificationCentre by lazy {

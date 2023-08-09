@@ -4,7 +4,7 @@ import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
 import com.github.plplmax.notifications.data.schedule.Schedules
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
-import com.github.plplmax.notifications.data.user.UserRepository
+import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.time.NightTimeOf
 import com.github.plplmax.notifications.window.ScheduleUpdateWindowOf
 import java.time.LocalDate
@@ -12,7 +12,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class ScheduleDiffUpdateOf(
-    private val userRepository: UserRepository,
+    private val users: Users,
     private val schedules: Schedules
 ) : ScheduleDiffUpdate {
     override suspend fun diff(): Result<ScheduleDiff> {
@@ -26,7 +26,7 @@ class ScheduleDiffUpdateOf(
             return Result.success(ScheduleDiff())
         }
 
-        val userId = userRepository.id()
+        val userId = users.id()
         val updateWindow = ScheduleUpdateWindowOf(LocalDate.now())
         val formatter = DateTimeFormatter.ofPattern("dd.MM.uuuu")
         val newScheduleResult = schedules.onWeek(

@@ -11,7 +11,7 @@ import androidx.work.*
 import com.github.plplmax.notifications.centre.NotificationCentre
 import com.github.plplmax.notifications.data.Errors
 import com.github.plplmax.notifications.data.schedule.Schedules
-import com.github.plplmax.notifications.data.user.UserRepository
+import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.data.worker.ScheduleWorker
 import com.github.plplmax.notifications.ui.navigation.Routes
 import kotlinx.coroutines.async
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(
-    private val userRepository: UserRepository,
+    private val users: Users,
     private val schedules: Schedules,
     private val notificationCentre: NotificationCentre,
     private val workManager: WorkManager
@@ -39,8 +39,8 @@ class MainViewModel(
 
     private fun initState() {
         viewModelScope.launch {
-            val userId = async { userRepository.id() }
-            val login = async { userRepository.login() }
+            val userId = async { users.id() }
+            val login = async { users.login() }
 
             if (login.await().isNotEmpty()) {
                 startDestination = Routes.Login
@@ -58,11 +58,11 @@ class MainViewModel(
     fun startUpdates(login: String) {
         state = UiState.Loading
         viewModelScope.launch {
-            val userId = userRepository.idByLogin(login)
+            val userId = users.idByLogin(login)
             userId.onFailure { state = stateForError(it) }
             userId.onSuccess { id ->
-                userRepository.saveId(id)
-                userRepository.saveLogin(login)
+                users.saveId(id)
+                users.saveLogin(login)
                 val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
@@ -88,9 +88,9 @@ class MainViewModel(
         viewModelScope.launch {
             state = try {
                 workManager.cancelUniqueWork(WORK_NAME).await()
-                userRepository.deleteId()
+                users.deleteId()
                 schedules.deleteSchedule()
-                val login = userRepository.login()
+                val login = users.login()
                 UiState.Initial(login)
             } catch (e: Exception) {
                 UiState.Failure(R.string.something_went_wrong)

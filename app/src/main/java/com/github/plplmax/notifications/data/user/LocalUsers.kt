@@ -1,4 +1,4 @@
-package com.github.plplmax.notifications.data.user.local
+package com.github.plplmax.notifications.data.user
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,10 +7,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class LocalUserDataSourceImpl(
+class LocalUsers(
     context: Context,
+    private val origin: Users,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-) : LocalUserDataSource {
+) : Users by origin {
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -18,11 +19,11 @@ class LocalUserDataSourceImpl(
         prefs.getInt(PREFS_NAME, 0)
     }
 
-    override fun saveId(id: Int) {
+    override suspend fun saveId(id: Int) {
         prefs.edit { putInt(PREFS_NAME, id) }
     }
 
-    override fun deleteId() {
+    override suspend fun deleteId() {
         prefs.edit { remove(PREFS_NAME) }
     }
 
@@ -30,7 +31,7 @@ class LocalUserDataSourceImpl(
         prefs.getString(LOGIN_KEY, "")!!
     }
 
-    override fun saveLogin(login: String) {
+    override suspend fun saveLogin(login: String) {
         prefs.edit { putString(LOGIN_KEY, login) }
     }
 
