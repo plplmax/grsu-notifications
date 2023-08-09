@@ -1,10 +1,10 @@
 package com.github.plplmax.notifications.data.user
 
-interface UserRepository {
+interface Users {
     suspend fun idByLogin(login: String): Result<Int>
     suspend fun id(): Int
-    fun saveId(id: Int)
-    fun deleteId()
+    suspend fun saveId(id: Int)
+    suspend fun deleteId()
     suspend fun login(): String
-    fun saveLogin(login: String)
+    suspend fun saveLogin(login: String)
 }

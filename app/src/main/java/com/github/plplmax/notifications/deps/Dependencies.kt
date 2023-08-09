@@ -9,15 +9,18 @@ import com.github.plplmax.notifications.channel.ScheduleNotificationChannelOf
 import com.github.plplmax.notifications.data.database.Database
 import com.github.plplmax.notifications.data.database.RealmDatabase
 import com.github.plplmax.notifications.data.notification.LocalScheduleNotifications
+import com.github.plplmax.notifications.data.notification.LoggedScheduleNotifications
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.data.schedule.ScheduleRepository
-import com.github.plplmax.notifications.data.schedule.ScheduleRepositoryImpl
-import com.github.plplmax.notifications.data.schedule.local.ScheduleLocalDataSourceImpl
-import com.github.plplmax.notifications.data.schedule.remote.ScheduleRemoteDataSourceImpl
-import com.github.plplmax.notifications.data.user.UserRepository
-import com.github.plplmax.notifications.data.user.UserRepositoryImpl
-import com.github.plplmax.notifications.data.user.local.LocalUserDataSourceImpl
-import com.github.plplmax.notifications.data.user.remote.RemoteUserDataSourceImpl
+import com.github.plplmax.notifications.data.schedule.LocalSchedules
+import com.github.plplmax.notifications.data.schedule.LoggedSchedules
+import com.github.plplmax.notifications.data.schedule.MappedSchedules
+import com.github.plplmax.notifications.data.schedule.RemoteSchedules
+import com.github.plplmax.notifications.data.schedule.Schedules
+import com.github.plplmax.notifications.data.user.LocalUsers
+import com.github.plplmax.notifications.data.user.LoggedUsers
+import com.github.plplmax.notifications.data.user.MappedUsers
+import com.github.plplmax.notifications.data.user.RemoteUsers
+import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.resources.AppResources
 import com.github.plplmax.notifications.resources.Resources
 import com.github.plplmax.notifications.update.ScheduleDiffUpdate
@@ -37,26 +40,36 @@ class Dependencies(context: Context) {
 
     val resources: Resources by lazy { AppResources(context) }
 
-    val userRepository: UserRepository by lazy {
-        UserRepositoryImpl(
-            RemoteUserDataSourceImpl(httpClient),
-            LocalUserDataSourceImpl(context)
+    val users: Users by lazy {
+        LoggedUsers(
+            MappedUsers(
+                LocalUsers(
+                    context,
+                    RemoteUsers(httpClient),
+                )
+            )
         )
     }
 
-    val scheduleRepository: ScheduleRepository by lazy {
-        ScheduleRepositoryImpl(
-            ScheduleRemoteDataSourceImpl(httpClient),
-            ScheduleLocalDataSourceImpl(database)
+    val schedules: Schedules by lazy {
+        LoggedSchedules(
+            MappedSchedules(
+                LocalSchedules(
+                    RemoteSchedules(httpClient),
+                    database
+                )
+            )
         )
     }
 
     val scheduleNotifications: ScheduleNotifications by lazy {
-        LocalScheduleNotifications(database)
+        LoggedScheduleNotifications(
+            LocalScheduleNotifications(database)
+        )
     }
 
     val scheduleDiffUpdate: ScheduleDiffUpdate by lazy {
-        ScheduleDiffUpdateOf(userRepository, scheduleRepository)
+        ScheduleDiffUpdateOf(users, schedules)
     }
 
     val notificationCentre: NotificationCentre by lazy {

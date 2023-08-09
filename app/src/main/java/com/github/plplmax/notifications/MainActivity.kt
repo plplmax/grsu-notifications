@@ -12,8 +12,8 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels(factoryProducer = {
         val deps = (application as App).deps
         MainViewModel(
-            deps.userRepository,
-            deps.scheduleRepository,
+            deps.users,
+            deps.schedules,
             deps.notificationCentre,
             WorkManager.getInstance(applicationContext)
         ).createFactory()
