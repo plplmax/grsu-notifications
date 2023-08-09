@@ -9,6 +9,7 @@ import com.github.plplmax.notifications.channel.ScheduleNotificationChannelOf
 import com.github.plplmax.notifications.data.database.Database
 import com.github.plplmax.notifications.data.database.RealmDatabase
 import com.github.plplmax.notifications.data.notification.LocalScheduleNotifications
+import com.github.plplmax.notifications.data.notification.LoggedScheduleNotifications
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
 import com.github.plplmax.notifications.data.schedule.LocalSchedules
 import com.github.plplmax.notifications.data.schedule.LoggedSchedules
@@ -62,7 +63,9 @@ class Dependencies(context: Context) {
     }
 
     val scheduleNotifications: ScheduleNotifications by lazy {
-        LocalScheduleNotifications(database)
+        LoggedScheduleNotifications(
+            LocalScheduleNotifications(database)
+        )
     }
 
     val scheduleDiffUpdate: ScheduleDiffUpdate by lazy {
