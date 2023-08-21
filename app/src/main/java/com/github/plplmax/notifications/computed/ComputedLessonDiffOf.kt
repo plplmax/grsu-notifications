@@ -7,8 +7,8 @@ class ComputedLessonDiffOf(private val old: Lesson, private val new: Lesson) : C
         if (new == old) return listOf()
         if (new.title != old.title) {
             return listOf(
-                new.copy(isAdded = true),
-                old.copy(isDeleted = true)
+                old.copy(isDeleted = true),
+                new.copy(isAdded = true)
             )
         }
         var changedLesson = new
