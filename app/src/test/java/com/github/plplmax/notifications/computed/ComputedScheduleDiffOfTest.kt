@@ -95,7 +95,8 @@ class ComputedScheduleDiffOfTest {
             teacher = Teacher(fullname = "Adam Smith"),
             type = "Exam",
             address = "Ozhesko, 22",
-            room = "226"
+            room = "226",
+            fullAddress = "Ozhesko, 22, 226"
         )
         val new = Schedule(listOf(day.copy(lessons = listOf(changedLesson))))
 
@@ -106,7 +107,8 @@ class ComputedScheduleDiffOfTest {
                 teacher = changedLesson.teacher.copy(fullname = "+ ${changedLesson.teacher.fullname}"),
                 type = "+ ${changedLesson.type}",
                 address = "+ ${changedLesson.address}",
-                room = "+ ${changedLesson.room}"
+                room = "+ ${changedLesson.room}",
+                fullAddress = "+ ${changedLesson.fullAddress}"
             )
         )
         val expected = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
