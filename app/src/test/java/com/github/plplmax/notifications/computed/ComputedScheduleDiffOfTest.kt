@@ -1,5 +1,6 @@
 package com.github.plplmax.notifications.computed
 
+import com.github.plplmax.notifications.data.schedule.enums.ModificationType
 import com.github.plplmax.notifications.data.schedule.models.Day
 import com.github.plplmax.notifications.data.schedule.models.Lesson
 import com.github.plplmax.notifications.data.schedule.models.Schedule
@@ -48,7 +49,7 @@ class ComputedScheduleDiffOfTest {
 
         val result = ComputedScheduleDiffOf(old, new).value()
 
-        val expectedLessons = listOf(secondLesson.copy(isAdded = true))
+        val expectedLessons = listOf(secondLesson.copy(modificationType = ModificationType.Added))
         val expectedSchedule = ScheduleDiff(
             days = listOf(addedDay.copy(lessons = expectedLessons))
         )
@@ -63,7 +64,7 @@ class ComputedScheduleDiffOfTest {
 
         val result = ComputedScheduleDiffOf(old, new).value()
 
-        val expectedLessons = listOf(secondLesson.copy(isDeleted = true))
+        val expectedLessons = listOf(secondLesson.copy(modificationType = ModificationType.Deleted))
         val expectedSchedule = ScheduleDiff(
             days = listOf(deletedDay.copy(lessons = expectedLessons))
         )
@@ -80,8 +81,8 @@ class ComputedScheduleDiffOfTest {
         val result = ComputedScheduleDiffOf(old, new).value()
 
         val expectedLessons = listOf(
-            firstLesson.copy(isDeleted = true),
-            changedLesson.copy(isAdded = true)
+            firstLesson.copy(modificationType = ModificationType.Deleted),
+            changedLesson.copy(modificationType = ModificationType.Added)
         )
         val expected = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
         assertEquals(expected, result)
@@ -108,7 +109,8 @@ class ComputedScheduleDiffOfTest {
                 type = "+ ${changedLesson.type}",
                 address = "+ ${changedLesson.address}",
                 room = "+ ${changedLesson.room}",
-                fullAddress = "+ ${changedLesson.fullAddress}"
+                fullAddress = "+ ${changedLesson.fullAddress}",
+                modificationType = ModificationType.Edited
             )
         )
         val expected = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
@@ -123,7 +125,7 @@ class ComputedScheduleDiffOfTest {
 
         val result = ComputedScheduleDiffOf(old, new).value()
 
-        val expectedLessons = listOf(secondLesson.copy(isAdded = true))
+        val expectedLessons = listOf(secondLesson.copy(modificationType = ModificationType.Added))
         val expectedSchedule = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
         assertEquals(expectedSchedule, result)
     }
@@ -136,7 +138,7 @@ class ComputedScheduleDiffOfTest {
 
         val result = ComputedScheduleDiffOf(old, new).value()
 
-        val expectedLessons = listOf(secondLesson.copy(isDeleted = true))
+        val expectedLessons = listOf(secondLesson.copy(modificationType = ModificationType.Deleted))
         val expectedSchedule = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
         assertEquals(expectedSchedule, result)
     }
