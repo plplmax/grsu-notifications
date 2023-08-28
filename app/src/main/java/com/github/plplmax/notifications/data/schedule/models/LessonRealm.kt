@@ -1,5 +1,6 @@
 package com.github.plplmax.notifications.data.schedule.models
 
+import com.github.plplmax.notifications.data.schedule.enums.ModificationType
 import io.realm.RealmObject
 import io.realm.annotations.RealmClass
 
@@ -13,6 +14,12 @@ open class LessonRealm : RealmObject() {
     var address: String = ""
     var room: String = ""
     var fullAddress: String = ""
+    var modificationType: ModificationType
+        get() = ModificationType.valueOf(_modificationType)
+        set(value) {
+            _modificationType = value.name
+        }
+    private var _modificationType: String = ModificationType.None.name
 }
 
 fun LessonRealm.toData(): Lesson {
@@ -24,6 +31,7 @@ fun LessonRealm.toData(): Lesson {
         title = title,
         address = address,
         room = room,
-        fullAddress = fullAddress
+        fullAddress = fullAddress,
+        modificationType = modificationType
     )
 }

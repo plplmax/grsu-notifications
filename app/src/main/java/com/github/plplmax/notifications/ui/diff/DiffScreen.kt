@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
+import com.github.plplmax.notifications.data.schedule.enums.ModificationType
 import com.github.plplmax.notifications.data.schedule.models.Day
 import com.github.plplmax.notifications.data.schedule.models.Lesson
 import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
@@ -97,10 +98,10 @@ fun DiffContent(schedule: ScheduleDiff) {
 
 @Composable
 fun ScheduleCard(lesson: Lesson) {
-    val cardBackground = if (lesson.isAdded) {
-        Color.Green.copy(alpha = 0.2f)
-    } else {
-        Color.Red.copy(alpha = 0.2f)
+    val cardBackground = when (lesson.modificationType) {
+        ModificationType.Added -> Color.Green.copy(alpha = 0.2f)
+        ModificationType.Deleted -> Color.Red.copy(alpha = 0.2f)
+        else -> Color.Unspecified
     }
     Card(
         modifier = Modifier
@@ -184,8 +185,7 @@ private val someSchedule = ScheduleDiff(
                     "Elegant Object principles",
                     "Ozheshko 22",
                     "316",
-                    isAdded = false,
-                    isDeleted = true
+                    modificationType = ModificationType.Deleted
                 ),
                 Lesson(
                     "18:15",
@@ -195,8 +195,7 @@ private val someSchedule = ScheduleDiff(
                     "Elegant Object principles",
                     "Ozheshko 22",
                     "316",
-                    isAdded = true,
-                    isDeleted = false
+                    modificationType = ModificationType.Added
                 )
             ).sortedBy { it.timeStart }
         )
