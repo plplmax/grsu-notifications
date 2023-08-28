@@ -12,6 +12,7 @@ open class LessonRealm : RealmObject() {
     var title: String = ""
     var address: String = ""
     var room: String = ""
+    var fullAddress: String = ""
 }
 
 fun LessonRealm.toData(): Lesson {
@@ -22,6 +23,7 @@ fun LessonRealm.toData(): Lesson {
         type = type,
         title = title,
         address = address,
-        room = room
+        room = room,
+        fullAddress = fullAddress
     )
 }

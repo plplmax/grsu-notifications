@@ -4,6 +4,7 @@ import com.github.plplmax.notifications.data.schedule.models.Day
 import com.github.plplmax.notifications.data.schedule.models.Lesson
 import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
+import com.github.plplmax.notifications.data.schedule.models.Teacher
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -14,8 +15,8 @@ class ComputedScheduleDiffOfTest {
 
     @Before
     fun setUp() {
-        firstLesson = Lesson(timeStart = "13:30", timeEnd = "14:50", title = "Information Security")
-        secondLesson = Lesson(timeStart = "8:30", timeEnd = "9:50", title = "Elegant Objects")
+        firstLesson = Lesson(timeStart = "8:30", timeEnd = "9:50", title = "Information Security")
+        secondLesson = Lesson(timeStart = "13:30", timeEnd = "14:50", title = "Elegant Objects")
     }
 
     @Test
@@ -70,7 +71,7 @@ class ComputedScheduleDiffOfTest {
     }
 
     @Test
-    fun diffsSchedulesWithChangedLesson() {
+    fun diffsSchedulesWithChangedLessonTitle() {
         val day = Day("07.07.2023", listOf())
         val old = Schedule(listOf(day.copy(lessons = listOf(firstLesson))))
         val changedLesson = firstLesson.copy(title = "Elegant Objects")
@@ -81,6 +82,34 @@ class ComputedScheduleDiffOfTest {
         val expectedLessons = listOf(
             firstLesson.copy(isDeleted = true),
             changedLesson.copy(isAdded = true)
+        )
+        val expected = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun diffsSchedulesWithChangedLesson() {
+        val day = Day("07.07.2023", listOf())
+        val old = Schedule(listOf(day.copy(lessons = listOf(firstLesson))))
+        val changedLesson = firstLesson.copy(
+            teacher = Teacher(fullname = "Adam Smith"),
+            type = "Exam",
+            address = "Ozhesko, 22",
+            room = "226",
+            fullAddress = "Ozhesko, 22, 226"
+        )
+        val new = Schedule(listOf(day.copy(lessons = listOf(changedLesson))))
+
+        val result = ComputedScheduleDiffOf(old, new).value()
+
+        val expectedLessons = listOf(
+            changedLesson.copy(
+                teacher = changedLesson.teacher.copy(fullname = "+ ${changedLesson.teacher.fullname}"),
+                type = "+ ${changedLesson.type}",
+                address = "+ ${changedLesson.address}",
+                room = "+ ${changedLesson.room}",
+                fullAddress = "+ ${changedLesson.fullAddress}"
+            )
         )
         val expected = ScheduleDiff(days = listOf(day.copy(lessons = expectedLessons)))
         assertEquals(expected, result)
