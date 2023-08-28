@@ -39,7 +39,7 @@ fun AppNavHost(
         }
         composable(Routes.Diff.route) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")!!
-            DiffScreen(id = id)
+            DiffScreen(id = id, onBack = navController::navigateUp)
         }
     }
 }

@@ -34,4 +34,5 @@
     <string name="yesterday">Вчера</string>
     <string name="no_notifications_yet">Пока нет уведомлений</string>
     <string name="failed_to_load_notifications">Не удалось загрузить уведомления</string>
+    <string name="go_back">Вернуться назад</string>
 </resources>
