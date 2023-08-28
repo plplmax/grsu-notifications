@@ -11,6 +11,11 @@ data class Lesson(
     val title: String = "",
     val address: String = "",
     val room: String = "",
+    val fullAddress: String = if (room.isEmpty()) {
+        address
+    } else {
+        "$address, $room"
+    },
     val isAdded: Boolean = false,
     val isDeleted: Boolean = false
 )
@@ -24,5 +29,6 @@ fun Lesson.toRealm(): LessonRealm {
         title = this@toRealm.title
         address = this@toRealm.address
         room = this@toRealm.room
+        fullAddress = this@toRealm.fullAddress
     }
 }

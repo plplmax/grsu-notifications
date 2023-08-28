@@ -130,7 +130,7 @@ fun ScheduleCard(lesson: Lesson) {
                     style = MaterialTheme.typography.titleSmall
                 )
                 DiffText(
-                    text = "${lesson.address}, ${lesson.room}",
+                    text = lesson.fullAddress,
                     style = MaterialTheme.typography.titleSmall
                 )
             }

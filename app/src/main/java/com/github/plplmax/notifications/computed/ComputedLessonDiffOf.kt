@@ -32,6 +32,11 @@ class ComputedLessonDiffOf(private val old: Lesson, private val new: Lesson) : C
                 room = "+ ${changedLesson.room}"
             )
         }
+        if (new.fullAddress != old.fullAddress) {
+            changedLesson = changedLesson.copy(
+                fullAddress = "+ ${changedLesson.fullAddress}"
+            )
+        }
         return listOf(changedLesson)
     }
 }
