@@ -49,13 +49,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
@@ -68,15 +66,11 @@ import com.github.plplmax.notifications.ui.refresh.pullRefresh
 import com.github.plplmax.notifications.ui.refresh.rememberPullRefreshState
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.snackbar.Snackbar
+import com.github.plplmax.notifications.ui.text.DateText
+import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZonedDateTime
-import java.time.chrono.IsoChronology
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
-import java.time.format.FormatStyle
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,20 +88,23 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
     val viewModel = viewModel(initializer = {
         NotificationViewModel(notifications = app.deps.scheduleNotifications)
     })
-    AnimatedContent(targetState = viewModel.uiState) { state ->
-        when (state) {
-            is NotificationViewModel.UiState.Loaded -> NotificationContent(
-                notifications = state.notifications,
-                onSelect = onSelect,
-                onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() },
-                onRefresh = viewModel::loadNotifications
-            )
+    Column {
+        NotificationTopAppBar()
+        AnimatedContent(targetState = viewModel.uiState) { state ->
+            when (state) {
+                is NotificationViewModel.UiState.Loaded -> NotificationContent(
+                    notifications = state.notifications,
+                    onSelect = onSelect,
+                    onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() },
+                    onRefresh = viewModel::loadNotifications
+                )
 
-            is NotificationViewModel.UiState.Loading -> ProgressIndicator()
-            is NotificationViewModel.UiState.Error -> ErrorContent(
-                message = stringResource(state.message),
-                onRetry = viewModel::loadNotifications
-            )
+                is NotificationViewModel.UiState.Loading -> ProgressIndicator()
+                is NotificationViewModel.UiState.Error -> ErrorContent(
+                    message = stringResource(state.message),
+                    onRetry = viewModel::loadNotifications
+                )
+            }
         }
     }
 }
@@ -190,45 +187,6 @@ private fun NoNotificationsText() {
     }
 }
 
-@Composable
-private fun DateText(date: LocalDate, modifier: Modifier = Modifier) {
-    val today = LocalDate.now()
-    val yesterday = today.minusDays(1)
-    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]!!
-    val formatter = getLocalizedDateFormatter(date, locale)
-    val text = when (date) {
-        today -> stringResource(id = R.string.today)
-        yesterday -> stringResource(id = R.string.yesterday)
-        else -> formatter.format(date)
-    }
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleLarge,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun getLocalizedDateFormatter(date: LocalDate, locale: Locale): DateTimeFormatter {
-    val today = LocalDate.now()
-    val pattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
-        FormatStyle.MEDIUM,
-        null,
-        IsoChronology.INSTANCE,
-        locale
-    )
-    val removeYearRegex = remember(pattern) {
-        // https://stackoverflow.com/a/12490796/17650498
-        Regex(if (pattern.contains("de")) "[^Mm]*[Yy]+[^Mm]*" else "[^DdMm]*[Yy]+[^DdMm]*")
-    }
-    val showYear = date.year != today.year
-    return if (showYear) {
-        DateTimeFormatter.ofPattern(pattern, locale)
-    } else {
-        DateTimeFormatter.ofPattern(pattern.replace(removeYearRegex, ""), locale)
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NotificationCard(
@@ -257,14 +215,6 @@ private fun NotificationCard(
             }
         }
     }
-}
-
-@Composable
-private fun TimeText(time: LocalTime, modifier: Modifier = Modifier) {
-    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
-    val formatter = DateTimeFormatterBuilder().appendLocalized(null, FormatStyle.SHORT)
-        .toFormatter(locale)
-    Text(text = formatter.format(time), modifier = modifier)
 }
 
 @Composable

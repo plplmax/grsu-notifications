@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.plplmax.notifications.data.notification.ScheduleNotifications
-import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
+import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotification
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -28,7 +28,7 @@ class DiffViewModel(
                     // @todo replace string literal with the constant
                     UiState.Error("Schedule not found")
                 } else {
-                    UiState.Loaded(notificationResult.first().diff)
+                    UiState.Loaded(notificationResult.first())
                 }
                 newState
             } catch (_: Exception) {
@@ -40,7 +40,7 @@ class DiffViewModel(
 
     sealed class UiState {
         object Loading : UiState()
-        data class Loaded(val diff: ScheduleDiff) : UiState()
+        data class Loaded(val notification: ScheduleDiffNotification) : UiState()
         data class Error(val text: String) : UiState()
     }
 }

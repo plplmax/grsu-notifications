@@ -11,13 +11,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -26,22 +32,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
+import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.schedule.enums.ModificationType
 import com.github.plplmax.notifications.data.schedule.models.Day
 import com.github.plplmax.notifications.data.schedule.models.Lesson
 import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 import com.github.plplmax.notifications.data.schedule.models.Teacher
+import com.github.plplmax.notifications.ui.text.DateText
+import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun DiffScreen(id: String) {
+fun DiffScreen(id: String, onBack: () -> Unit) {
     val context = LocalContext.current
     val app = remember(context) {
         ((context as MainActivity).application) as App
@@ -52,12 +62,39 @@ fun DiffScreen(id: String) {
     LaunchedEffect(id) {
         viewModel.loadScheduleById(id)
     }
-    when (val state = viewModel.state) {
-        // @todo show spinner while loading
-        is DiffViewModel.UiState.Loaded -> DiffContent(state.diff)
-        is DiffViewModel.UiState.Error -> Text("Error occurred: ${state.text}")
-        is DiffViewModel.UiState.Loading -> Text("Loading...")
+    Column {
+        DiffTopAppBar(state = viewModel.state, onBack = onBack)
+        when (val state = viewModel.state) {
+            // @todo show spinner while loading
+            is DiffViewModel.UiState.Loaded -> DiffContent(state.notification.diff)
+            is DiffViewModel.UiState.Error -> Text("Error occurred: ${state.text}")
+            is DiffViewModel.UiState.Loading -> Text("Loading...")
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DiffTopAppBar(state: DiffViewModel.UiState, onBack: () -> Unit) {
+    TopAppBar(
+        title = {
+            if (state is DiffViewModel.UiState.Loaded) {
+                Row {
+                    DateText(date = state.notification.created.toLocalDate())
+                    Text(text = ", ")
+                    TimeText(time = state.notification.created.toLocalTime())
+                }
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = stringResource(R.string.go_back)
+                )
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
