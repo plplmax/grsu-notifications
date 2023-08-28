@@ -1,5 +1,6 @@
 package com.github.plplmax.notifications.data.schedule.models
 
+import com.github.plplmax.notifications.data.schedule.enums.ModificationType
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,8 +17,7 @@ data class Lesson(
     } else {
         "$address, $room"
     },
-    val isAdded: Boolean = false,
-    val isDeleted: Boolean = false
+    val modificationType: ModificationType = ModificationType.None
 )
 
 fun Lesson.toRealm(): LessonRealm {
@@ -30,5 +30,6 @@ fun Lesson.toRealm(): LessonRealm {
         address = this@toRealm.address
         room = this@toRealm.room
         fullAddress = this@toRealm.fullAddress
+        modificationType = this@toRealm.modificationType
     }
 }
