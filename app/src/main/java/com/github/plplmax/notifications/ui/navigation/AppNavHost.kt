@@ -30,7 +30,13 @@ fun AppNavHost(
                 }
             }
         }
-        composable(Routes.Login.route) { LoginScreen(viewModel) }
+        composable(Routes.Login.route) {
+            LoginScreen(viewModel) {
+                navController.navigate(Routes.Notifications.route) {
+                    popUpTo(Routes.Login.route) { inclusive = true }
+                }
+            }
+        }
         composable(Routes.Notifications.route) {
             NotificationScreen {
                 val route = Routes.Diff.route.replace("{id}", it)
