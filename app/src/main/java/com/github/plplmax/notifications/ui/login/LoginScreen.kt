@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,9 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
@@ -37,14 +34,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -61,7 +55,6 @@ import androidx.core.content.ContextCompat
 import com.github.plplmax.notifications.MainViewModel
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.UiState
-import com.github.plplmax.notifications.data.Constants
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
@@ -69,7 +62,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @Composable
-fun LoginScreen(viewModel: MainViewModel) {
+fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -78,8 +71,8 @@ fun LoginScreen(viewModel: MainViewModel) {
     ) {
         LoginContent(
             state = viewModel.state,
-            startUpdates = viewModel::startUpdates,
-            stopUpdates = viewModel::stopUpdates,
+            signIn = viewModel::signIn,
+            onSuccess = onSuccess,
             clearError = viewModel::clearError,
             needPermission = viewModel::needRequestNotificationsPermission
         )
@@ -104,28 +97,22 @@ private fun LoginImage() {
 @Composable
 private fun LoginContent(
     state: UiState = UiState.Initial(),
-    startUpdates: (String) -> Unit = {},
-    stopUpdates: () -> Unit = {},
+    signIn: (String) -> Unit = {},
+    onSuccess: () -> Unit = {},
     clearError: () -> Unit = {},
     needPermission: () -> Boolean = { false }
 ) {
     var login by rememberSaveable { mutableStateOf("") }
-    var dialogVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarState.current
     val coroutineScope = rememberCoroutineScope()
     val permissionLauncher = rememberPermissionLauncher(
-        allowed = { startUpdates(login) },
+        allowed = { signIn(login) },
         disallowed = {
             coroutineScope.launch {
                 showNotificationPermissionSnackbar(snackbarHostState, context)
             }
         }
-    )
-    AlertDialogProblemWithNotifications(
-        visible = dialogVisible,
-        onDismissRequest = { dialogVisible = false },
-        onConfirm = { dialogVisible = false }
     )
     LaunchedEffect(state) {
         login = when (state) {
@@ -133,13 +120,10 @@ private fun LoginContent(
                 state.login.ifEmpty { login }
             }
 
-            is UiState.Updating -> {
-                state.login
-            }
-
             else -> login
         }
 
+        if (state is UiState.Success) onSuccess()
         if (needShowError(state, withSnackbar = true))
             snackbarHostState.showSnackbar(
                 message = context.getString(state.id),
@@ -147,7 +131,7 @@ private fun LoginContent(
                 duration = SnackbarDuration.Indefinite
             ).let { action ->
                 if (action == SnackbarResult.ActionPerformed) {
-                    startUpdates(login)
+                    signIn(login)
                 }
             }
     }
@@ -177,11 +161,11 @@ private fun LoginContent(
             keyboardActions = KeyboardActions(onDone = {
                 coroutineScope.launch {
                     if (isSubmitAvailable(state, login)) {
-                        startUpdates(
+                        signIn(
                             requestPermissionLauncher = permissionLauncher,
                             snackbarHostState = snackbarHostState,
                             context = context,
-                            startUpdates = { startUpdates(login) },
+                            signIn = { signIn(login) },
                             needPermission = needPermission
                         )
                     }
@@ -197,34 +181,21 @@ private fun LoginContent(
                     }
                 )
             },
-            enabled = state !is UiState.Updating && state !is UiState.Loading
+            enabled = state !is UiState.Loading
         )
         Button(
             onClick = {
                 coroutineScope.launch {
-                    if (state is UiState.Updating) {
-                        stopUpdates()
-                    } else {
-                        startUpdates(
-                            requestPermissionLauncher = permissionLauncher,
-                            snackbarHostState = snackbarHostState,
-                            context = context,
-                            startUpdates = { startUpdates(login) },
-                            needPermission = needPermission
-                        )
-                    }
+                    signIn(
+                        requestPermissionLauncher = permissionLauncher,
+                        snackbarHostState = snackbarHostState,
+                        context = context,
+                        signIn = { signIn(login) },
+                        needPermission = needPermission
+                    )
                 }
             },
             enabled = isSubmitAvailable(state, login),
-            colors = kotlin.run {
-                val containerColor = if (state is UiState.Updating) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.primary
-                }
-                val contentColor = contentColorFor(backgroundColor = containerColor)
-                ButtonDefaults.buttonColors(containerColor, contentColor)
-            },
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -234,53 +205,9 @@ private fun LoginContent(
                     strokeWidth = 2.dp
                 )
             } else {
-                Text(
-                    text = stringResource(
-                        if (state is UiState.Updating) {
-                            R.string.stop_updates
-                        } else {
-                            R.string.start_updates
-                        }
-                    )
-                )
+                Text(text = stringResource(R.string.sign_in))
             }
         }
-
-        TextButton(onClick = { dialogVisible = true }) {
-            Text(text = stringResource(R.string.have_problems_getting_notifications))
-        }
-    }
-}
-
-@Composable
-private fun AlertDialogProblemWithNotifications(
-    visible: Boolean = false,
-    onDismissRequest: () -> Unit = {},
-    onConfirm: () -> Unit = {}
-) {
-    val context = LocalContext.current
-    if (visible) {
-        AlertDialog(
-            text = {
-                Surface(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    Text(text = stringResource(R.string.problems_getting_notifications_dialog))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = stringResource(R.string.back))
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onConfirm()
-                    openDontKillMyApp(context)
-                }) {
-                    Text(text = stringResource(R.string._continue))
-                }
-            },
-            onDismissRequest = onDismissRequest
-        )
     }
 }
 
@@ -301,11 +228,11 @@ private fun rememberPermissionLauncher(
     )
 }
 
-private suspend fun startUpdates(
+private suspend fun signIn(
     requestPermissionLauncher: ActivityResultLauncher<String>,
     snackbarHostState: SnackbarHostState,
     context: Context,
-    startUpdates: () -> Unit,
+    signIn: () -> Unit,
     needPermission: () -> Boolean
 ) {
     if (needPermission()) {
@@ -315,7 +242,7 @@ private suspend fun startUpdates(
             showNotificationPermissionSnackbar(snackbarHostState, context)
         }
     } else {
-        startUpdates()
+        signIn()
     }
 }
 
@@ -355,13 +282,6 @@ private fun needShowError(state: UiState, withSnackbar: Boolean = false): Boolea
 
 private fun isSubmitAvailable(state: UiState, login: String): Boolean {
     return state !is UiState.Loading && !needShowError(state) && login.isNotBlank()
-}
-
-private fun openDontKillMyApp(context: Context) {
-    val url =
-        "${Constants.DONT_KILL_BASE_URL}/${Constants.MANUFACTURER}?app=${context.getString(R.string.app_name)}#user-solution"
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-    context.startActivity(intent)
 }
 
 @Preview(uiMode = UI_MODE_NIGHT_YES)
