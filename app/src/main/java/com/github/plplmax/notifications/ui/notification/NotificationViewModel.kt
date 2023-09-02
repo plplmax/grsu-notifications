@@ -1,10 +1,10 @@
 package com.github.plplmax.notifications.ui.notification
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,9 +25,9 @@ class NotificationViewModel(
     private val notifications: ScheduleNotifications,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
-    private val cachedNotifications: MutableMap<LocalDate, List<ShortScheduleDiffNotification>> =
-        mutableStateMapOf()
-    var uiState: UiState by mutableStateOf(UiState.Loading, referentialEqualityPolicy())
+    private var cachedNotifications: MutableState<Map<LocalDate, List<ShortScheduleDiffNotification>>> =
+        mutableStateOf(emptyMap())
+    var uiState: UiState by mutableStateOf(UiState.Loading)
         private set
 
     init {
@@ -41,8 +41,7 @@ class NotificationViewModel(
                 val result = withContext(ioDispatcher) {
                     notifications.notifications().groupBy { it.created.toLocalDate() }
                 }
-                cachedNotifications.clear()
-                cachedNotifications.putAll(result)
+                cachedNotifications.value = result
                 UiState.Loaded(cachedNotifications)
             } catch (_: Exception) {
                 currentCoroutineContext().ensureActive()
@@ -56,9 +55,11 @@ class NotificationViewModel(
             try {
                 withContext(ioDispatcher) { notifications.deleteById(id) }
                 // @todo maybe add mutex to prevent data race when user deletes multiple notifications
-                cachedNotifications.computeIfPresent(date) { _, notifications ->
-                    val updatedNotifications = notifications.filterNot { it.id == id }
-                    updatedNotifications.ifEmpty { null }
+                cachedNotifications.value = cachedNotifications.value.toMutableMap().apply {
+                    computeIfPresent(date) { _, notifications ->
+                        val updatedNotifications = notifications.filterNot { it.id == id }
+                        updatedNotifications.ifEmpty { null }
+                    }
                 }
                 true
             } catch (_: Exception) {
@@ -69,10 +70,16 @@ class NotificationViewModel(
     }
 
     sealed class UiState {
+        // do not add data keyword for Error class because snackbar
+        // with retry button does not appear due to possible
+        // fast transition: Error -> Loading -> Error
+        // As a result, Loading phase may be skipped and compose
+        // does not detect any changes in the state if the two
+        // errors have the same message.
         class Error(@StringRes val message: Int) : UiState()
         object Loading : UiState()
-        class Loaded(
-            val notifications: Map<LocalDate, List<ShortScheduleDiffNotification>>
+        data class Loaded(
+            val notifications: State<Map<LocalDate, List<ShortScheduleDiffNotification>>>
         ) : UiState()
     }
 }

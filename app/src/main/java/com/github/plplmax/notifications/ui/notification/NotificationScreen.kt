@@ -40,6 +40,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -124,12 +125,12 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NotificationContent(
-    notifications: Map<LocalDate, List<ShortScheduleDiffNotification>> = mapOf(),
+    notifications: State<Map<LocalDate, List<ShortScheduleDiffNotification>>>,
     onSelect: (id: String) -> Unit = {},
     onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true },
     onRefresh: () -> Unit = {}
 ) {
-    if (notifications.isEmpty()) {
+    if (notifications.value.isEmpty()) {
         NoNotificationsText()
         return
     }
@@ -141,7 +142,7 @@ private fun NotificationContent(
             verticalArrangement = Arrangement.spacedBy(14.dp),
             contentPadding = PaddingValues(all = 14.dp)
         ) {
-            for ((date, notifs) in notifications) {
+            for ((date, notifs) in notifications.value) {
                 if (notifs.isEmpty()) continue
                 // @todo maybe invoke date.toString() as key
                 item(key = date) {
@@ -332,26 +333,30 @@ private fun NotificationContentPreview() {
     GrsuNotificationsTheme {
         Surface {
             NotificationContent(
-                notifications = mapOf(
-                    LocalDate.now() to listOf(
-                        ShortScheduleDiffNotification(
-                            "1",
-                            false,
-                            ZonedDateTime.now().minusHours(5)
-                        ),
-                        ShortScheduleDiffNotification("2", true, ZonedDateTime.now()),
-                    ),
-                    LocalDate.now().minusDays(1) to listOf(
-                        ShortScheduleDiffNotification("3", false, ZonedDateTime.now()),
-                        ShortScheduleDiffNotification("4", true, ZonedDateTime.now()),
-                    ),
-                    LocalDate.now().minusDays(2) to listOf(
-                        ShortScheduleDiffNotification("5", false, ZonedDateTime.now()),
-                    ),
-                    LocalDate.now().minusYears(1) to listOf(
-                        ShortScheduleDiffNotification("6", false, ZonedDateTime.now()),
+                notifications = remember {
+                    mutableStateOf(
+                        mapOf(
+                            LocalDate.now() to listOf(
+                                ShortScheduleDiffNotification(
+                                    "1",
+                                    false,
+                                    ZonedDateTime.now().minusHours(5)
+                                ),
+                                ShortScheduleDiffNotification("2", true, ZonedDateTime.now()),
+                            ),
+                            LocalDate.now().minusDays(1) to listOf(
+                                ShortScheduleDiffNotification("3", false, ZonedDateTime.now()),
+                                ShortScheduleDiffNotification("4", true, ZonedDateTime.now()),
+                            ),
+                            LocalDate.now().minusDays(2) to listOf(
+                                ShortScheduleDiffNotification("5", false, ZonedDateTime.now()),
+                            ),
+                            LocalDate.now().minusYears(1) to listOf(
+                                ShortScheduleDiffNotification("6", false, ZonedDateTime.now()),
+                            )
+                        )
                     )
-                )
+                }
             )
         }
     }
