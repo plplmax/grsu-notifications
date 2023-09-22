@@ -7,4 +7,5 @@ interface Users {
     suspend fun deleteId()
     suspend fun login(): String
     suspend fun saveLogin(login: String)
+    suspend fun signOut()
 }

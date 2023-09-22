@@ -43,4 +43,8 @@ class RemoteUsers(
     override suspend fun saveLogin(login: String) {
         // do nothing
     }
+
+    override suspend fun signOut() {
+        // do nothing
+    }
 }

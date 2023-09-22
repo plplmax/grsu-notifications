@@ -34,4 +34,5 @@
     <string name="failed_to_load_notifications">Не удалось загрузить уведомления</string>
     <string name="go_back">Вернуться назад</string>
     <string name="sign_in">Войти</string>
+    <string name="sign_out">Выйти</string>
 </resources>

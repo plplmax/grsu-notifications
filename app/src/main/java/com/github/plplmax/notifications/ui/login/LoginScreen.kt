@@ -62,7 +62,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @Composable
-fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit = {}) {
+fun LoginScreen(viewModel: MainViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +72,6 @@ fun LoginScreen(viewModel: MainViewModel, onSuccess: () -> Unit = {}) {
         LoginContent(
             state = viewModel.state,
             signIn = viewModel::signIn,
-            onSuccess = onSuccess,
             clearError = viewModel::clearError,
             needPermission = viewModel::needRequestNotificationsPermission
         )
@@ -98,7 +97,6 @@ private fun LoginImage() {
 private fun LoginContent(
     state: UiState = UiState.Initial(),
     signIn: (String) -> Unit = {},
-    onSuccess: () -> Unit = {},
     clearError: () -> Unit = {},
     needPermission: () -> Boolean = { false }
 ) {
@@ -123,7 +121,6 @@ private fun LoginContent(
             else -> login
         }
 
-        if (state is UiState.Success) onSuccess()
         if (needShowError(state, withSnackbar = true))
             snackbarHostState.showSnackbar(
                 message = context.getString(state.id),

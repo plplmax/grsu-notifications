@@ -46,6 +46,7 @@ class Dependencies(context: Context) {
                 LocalUsers(
                     context,
                     RemoteUsers(httpClient),
+                    database
                 )
             )
         )

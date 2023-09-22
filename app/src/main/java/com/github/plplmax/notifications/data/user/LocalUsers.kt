@@ -3,6 +3,7 @@ package com.github.plplmax.notifications.data.user
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.github.plplmax.notifications.data.database.Database
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,6 +11,7 @@ import kotlinx.coroutines.withContext
 class LocalUsers(
     context: Context,
     private val origin: Users,
+    private val database: Database,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Users by origin {
     private val prefs: SharedPreferences =
@@ -33,6 +35,15 @@ class LocalUsers(
 
     override suspend fun saveLogin(login: String) {
         prefs.edit { putString(LOGIN_KEY, login) }
+    }
+
+    override suspend fun signOut() {
+        withContext(dispatcher) {
+            database.instance().use { realm ->
+                realm.executeTransaction { it.deleteAll() }
+            }
+            deleteId()
+        }
     }
 
     companion object {
