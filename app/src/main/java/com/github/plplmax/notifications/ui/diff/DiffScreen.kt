@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -31,11 +32,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
@@ -49,6 +54,8 @@ import com.github.plplmax.notifications.ui.text.DateText
 import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun DiffScreen(id: String, onBack: () -> Unit) {
@@ -107,17 +114,12 @@ fun DiffContent(schedule: ScheduleDiff) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
     Column {
-        ScrollableTabRow(
-            selectedTabIndex = pagerState.currentPage,
-            edgePadding = 24.dp
-        ) {
+        ScrollableTabRow(selectedTabIndex = pagerState.currentPage) {
             schedule.days.forEachIndexed { index, day ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
-                ) {
-                    Text(text = day.date, modifier = Modifier.padding(14.dp))
-                }
+                ) { TabContent(date = LocalDate.parse(day.date)) }
             }
         }
         HorizontalPager(
@@ -131,6 +133,17 @@ fun DiffContent(schedule: ScheduleDiff) {
             }
         }
     }
+}
+
+@Composable
+fun TabContent(date: LocalDate) {
+    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]!!
+    val formatter = DateTimeFormatter.ofPattern("EE, dd.MM", locale)
+    Text(
+        text = date.format(formatter).uppercase(locale),
+        modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 14.dp),
+        style = MaterialTheme.typography.titleSmall
+    )
 }
 
 @Composable
@@ -162,20 +175,27 @@ fun ScheduleCard(lesson: Lesson) {
                     .weight(1f)
                     .padding(horizontal = 8.dp)
             ) {
-                DiffText(text = lesson.title)
+                DiffText(
+                    text = lesson.title,
+                    style = MaterialTheme.typography.titleMedium.copy(lineHeight = 20.sp)
+                )
                 DiffText(
                     text = lesson.teacher.fullname,
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 DiffText(
                     text = lesson.fullAddress,
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
-            Column(modifier = Modifier.weight(0.3f)) {
+            Column(modifier = Modifier.weight(0.2f)) {
                 DiffText(
                     text = lesson.type,
-                    style = MaterialTheme.typography.titleSmall
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentWidth(align = Alignment.End),
+                    textAlign = TextAlign.Right,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -183,7 +203,12 @@ fun ScheduleCard(lesson: Lesson) {
 }
 
 @Composable
-fun DiffText(text: String, style: TextStyle = LocalTextStyle.current) {
+fun DiffText(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null,
+    style: TextStyle = LocalTextStyle.current
+) {
     val color = when (text.firstOrNull()) {
         '+' -> {
             Color.Green.copy(alpha = 0.2f)
@@ -197,7 +222,7 @@ fun DiffText(text: String, style: TextStyle = LocalTextStyle.current) {
             Color.Unspecified
         }
     }
-    Text(text = text, style = style, modifier = Modifier.background(color))
+    Text(text = text, modifier = modifier.background(color), textAlign = textAlign, style = style)
 }
 
 @Preview(uiMode = UI_MODE_NIGHT_YES)
@@ -213,7 +238,7 @@ fun DiffContentPreview() {
 private val someSchedule = ScheduleDiff(
     days = listOf(
         Day(
-            "11.05.2015", lessons = listOf(
+            "2015-05-11", lessons = listOf(
                 Lesson(
                     "11:40",
                     "13:00",
