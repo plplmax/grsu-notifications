@@ -107,16 +107,16 @@ fun DiffContent(schedule: ScheduleDiff) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
     Column {
-        ScrollableTabRow(
-            selectedTabIndex = pagerState.currentPage,
-            edgePadding = 24.dp
-        ) {
+        ScrollableTabRow(selectedTabIndex = pagerState.currentPage) {
             schedule.days.forEachIndexed { index, day ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
                 ) {
-                    Text(text = day.date, modifier = Modifier.padding(14.dp))
+                    Text(
+                        text = day.date,
+                        modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 14.dp)
+                    )
                 }
             }
         }
