@@ -31,11 +31,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
@@ -49,6 +51,8 @@ import com.github.plplmax.notifications.ui.text.DateText
 import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun DiffScreen(id: String, onBack: () -> Unit) {
@@ -112,12 +116,7 @@ fun DiffContent(schedule: ScheduleDiff) {
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
-                ) {
-                    Text(
-                        text = day.date,
-                        modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 14.dp)
-                    )
-                }
+                ) { TabContent(date = LocalDate.parse(day.date)) }
             }
         }
         HorizontalPager(
@@ -131,6 +130,17 @@ fun DiffContent(schedule: ScheduleDiff) {
             }
         }
     }
+}
+
+@Composable
+fun TabContent(date: LocalDate) {
+    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]!!
+    val formatter = DateTimeFormatter.ofPattern("EE, dd.MM", locale)
+    Text(
+        text = date.format(formatter).uppercase(locale),
+        modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 14.dp),
+        style = MaterialTheme.typography.titleSmall
+    )
 }
 
 @Composable
@@ -213,7 +223,7 @@ fun DiffContentPreview() {
 private val someSchedule = ScheduleDiff(
     days = listOf(
         Day(
-            "11.05.2015", lessons = listOf(
+            "2015-05-11", lessons = listOf(
                 Lesson(
                     "11:40",
                     "13:00",
