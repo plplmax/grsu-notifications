@@ -13,6 +13,10 @@ import com.github.plplmax.notifications.data.Errors
 import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.data.worker.ScheduleWorker
 import com.github.plplmax.notifications.ui.navigation.Routes
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
@@ -44,7 +48,7 @@ class MainViewModel(
                 state = UiState.Initial(login)
             } else {
                 startDestination = Routes.Notifications
-                state = UiState.Success
+                state = UiState.Success(login)
             }
         }
     }
@@ -61,7 +65,7 @@ class MainViewModel(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
 
-                state = try {
+                try {
                     workManager.enqueueUniquePeriodicWork(
                         WORK_NAME,
                         ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
@@ -69,10 +73,25 @@ class MainViewModel(
                             30, TimeUnit.MINUTES
                         ).setConstraints(constraints).build()
                     ).await()
-                    UiState.Success
-                } catch (e: Exception) {
-                    UiState.Failure(R.string.something_went_wrong)
+                    initState()
+                } catch (_: Exception) {
+                    currentCoroutineContext().ensureActive()
+                    state = UiState.Failure(R.string.something_went_wrong)
                 }
+            }
+        }
+    }
+
+    fun signOut(): Deferred<Boolean> {
+        return viewModelScope.async {
+            try {
+                workManager.cancelUniqueWork(WORK_NAME).await()
+                users.signOut()
+                initState()
+                true
+            } catch (_: Exception) {
+                currentCoroutineContext().ensureActive()
+                false
             }
         }
     }
@@ -112,6 +131,6 @@ fun <T : ViewModel> T.createFactory(): ViewModelProvider.Factory {
 sealed class UiState {
     class Initial(val login: String = "") : UiState()
     object Loading : UiState()
-    object Success : UiState()
+    class Success(val login: String = "") : UiState()
     class Failure(@StringRes val id: Int, val showSnackbar: Boolean = false) : UiState()
 }

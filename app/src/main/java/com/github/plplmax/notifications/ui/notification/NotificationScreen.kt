@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -31,6 +32,7 @@ import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismiss
@@ -75,13 +77,20 @@ import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationTopAppBar() {
-    TopAppBar(title = { Text(text = stringResource(Routes.Notifications.title)) })
+fun NotificationTopAppBar(showNavigation: () -> Unit) {
+    TopAppBar(
+        title = { Text(text = stringResource(Routes.Notifications.title)) },
+        navigationIcon = {
+            IconButton(onClick = showNavigation) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = null)
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
+fun NotificationScreen(onSelect: (id: String) -> Unit = {}, showNavigation: () -> Unit) {
     val context = LocalContext.current
     val app = remember(context) {
         ((context as MainActivity).application) as App
@@ -90,7 +99,7 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}) {
         NotificationViewModel(notifications = app.deps.scheduleNotifications)
     })
     Column {
-        NotificationTopAppBar()
+        NotificationTopAppBar(showNavigation)
         AnimatedContent(targetState = viewModel.uiState) { state ->
             when (state) {
                 is NotificationViewModel.UiState.Loaded -> NotificationContent(

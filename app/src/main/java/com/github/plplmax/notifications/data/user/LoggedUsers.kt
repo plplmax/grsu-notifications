@@ -77,4 +77,16 @@ class LoggedUsers(
             }
         }
     }
+
+    override suspend fun signOut() {
+        withContext(dispatcher) {
+            try {
+                origin.signOut()
+            } catch (e: Exception) {
+                currentCoroutineContext().ensureActive()
+                Timber.e(e)
+                throw e
+            }
+        }
+    }
 }

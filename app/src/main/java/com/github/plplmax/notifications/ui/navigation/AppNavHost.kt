@@ -16,7 +16,8 @@ import com.github.plplmax.notifications.ui.welcome.WelcomeScreen
 fun AppNavHost(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    showNavigation: () -> Unit = {}
 ) {
     val startDestination = when (val destination = viewModel.startDestination) {
         is Routes.Undefined -> return
@@ -30,18 +31,15 @@ fun AppNavHost(
                 }
             }
         }
-        composable(Routes.Login.route) {
-            LoginScreen(viewModel) {
-                navController.navigate(Routes.Notifications.route) {
-                    popUpTo(Routes.Login.route) { inclusive = true }
-                }
-            }
-        }
+        composable(Routes.Login.route) { LoginScreen(viewModel) }
         composable(Routes.Notifications.route) {
-            NotificationScreen {
-                val route = Routes.Diff.route.replace("{id}", it)
-                navController.navigate(route)
-            }
+            NotificationScreen(
+                onSelect = {
+                    val route = Routes.Diff.route.replace("{id}", it)
+                    navController.navigate(route)
+                },
+                showNavigation = showNavigation
+            )
         }
         composable(Routes.Diff.route) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")!!
