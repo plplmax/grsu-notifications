@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -89,11 +91,16 @@ private fun DrawerContent(
 ) {
     var showHelpDialog by remember { mutableStateOf(false) }
     ModalDrawerSheet {
-        Text(text = login, modifier = Modifier.padding(24.dp))
+        Text(
+            text = login,
+            modifier = Modifier.padding(horizontal = 32.dp, vertical = 24.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Divider(color = MaterialTheme.colorScheme.background, thickness = 2.dp)
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         NavigationDrawerItem(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
             label = { Text(text = stringResource(R.string.notifications)) },
             selected = currentRoute == Routes.Notifications.route,
             onClick = openNotifications,
@@ -102,7 +109,7 @@ private fun DrawerContent(
             }
         )
         NavigationDrawerItem(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
             label = { Text(text = stringResource(R.string.sign_out)) },
             selected = false,
             onClick = onSignOut,
@@ -113,7 +120,7 @@ private fun DrawerContent(
         Spacer(modifier = Modifier.height(6.dp))
         Divider(color = MaterialTheme.colorScheme.background, thickness = 2.dp)
         TextButton(
-            modifier = Modifier.padding(start = 12.dp),
+            modifier = Modifier.padding(start = 18.dp),
             onClick = { showHelpDialog = true }
         ) {
             Text(text = stringResource(R.string.have_problems_getting_notifications))
