@@ -327,9 +327,13 @@ private fun NotificationIcon(read: Boolean = false) {
             Box(
                 modifier = Modifier
                     .padding(end = 2.dp)
-                    .size(8.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .size(10.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .padding(all = 2.dp)
+                    .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
                     .align(Alignment.TopEnd)
             )
         }
