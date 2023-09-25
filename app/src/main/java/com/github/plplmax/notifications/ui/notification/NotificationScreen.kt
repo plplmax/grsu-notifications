@@ -256,7 +256,7 @@ private fun SwipeToDismissNotification(
     dismissContent: @Composable RowScope.() -> Unit
 ) {
     val view = LocalView.current
-    val dismissState = rememberDismissState()
+    val dismissState = rememberDismissState(positionalThreshold = { total -> total / 2 })
     var firstComposition by remember { mutableStateOf(true) }
     val snackbarState = LocalSnackbarState.current
     val context = LocalContext.current
