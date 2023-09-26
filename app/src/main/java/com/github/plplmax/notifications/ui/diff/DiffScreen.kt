@@ -3,6 +3,7 @@ package com.github.plplmax.notifications.ui.diff
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -124,12 +127,14 @@ fun DiffContent(schedule: ScheduleDiff) {
         }
         HorizontalPager(
             pageCount = schedule.days.size,
-            contentPadding = PaddingValues(14.dp),
-            pageSpacing = 4.dp,
             state = pagerState
         ) { index ->
-            Column(modifier = Modifier.fillMaxSize()) {
-                schedule.days[index].lessons.forEach { ScheduleCard(it) }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(all = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                items(schedule.days[index].lessons) { ScheduleCard(it) }
             }
         }
     }
@@ -153,11 +158,7 @@ fun ScheduleCard(lesson: Lesson) {
         ModificationType.Deleted -> Color.Red.copy(alpha = 0.2f)
         else -> Color.Unspecified
     }
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-    ) {
+    Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .background(cardBackground)
