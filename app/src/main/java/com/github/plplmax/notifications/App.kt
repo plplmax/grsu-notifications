@@ -38,7 +38,6 @@ class App : Application(), Configuration.Provider {
         Realm.init(applicationContext)
         val realmConfig =
             RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
                 .name("appStorage.realm")
                 .compactOnLaunch()
                 .build()
