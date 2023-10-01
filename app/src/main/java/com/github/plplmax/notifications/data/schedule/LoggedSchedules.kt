@@ -7,6 +7,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.time.LocalDate
 
 class LoggedSchedules(
     private val origin: Schedules,
@@ -42,6 +43,36 @@ class LoggedSchedules(
     override suspend fun deleteSchedule() {
         try {
             origin.deleteSchedule()
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
+            Timber.e(e)
+            throw e
+        }
+    }
+
+    override suspend fun lastUpdate(): LocalDate {
+        return try {
+            origin.lastUpdate()
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
+            Timber.e(e)
+            throw e
+        }
+    }
+
+    override suspend fun saveLastUpdate(date: LocalDate) {
+        try {
+            origin.saveLastUpdate(date)
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
+            Timber.e(e)
+            throw e
+        }
+    }
+
+    override suspend fun deleteLastUpdate() {
+        try {
+            origin.deleteLastUpdate()
         } catch (e: Exception) {
             currentCoroutineContext().ensureActive()
             Timber.e(e)

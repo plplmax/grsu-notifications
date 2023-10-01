@@ -27,6 +27,7 @@ class ScheduleDiffUpdateOf(
         }
 
         val userId = users.id()
+        val lastUpdate = schedules.lastUpdate()
         val updateWindow = ScheduleUpdateWindowOf(LocalDate.now())
         val formatter = DateTimeFormatter.ofPattern("dd.MM.uuuu")
         val newScheduleResult = schedules.onWeek(
@@ -37,12 +38,17 @@ class ScheduleDiffUpdateOf(
 
         newScheduleResult.onFailure { th -> return Result.failure(th) }
 
-        val oldSchedule = oldScheduleResult.firstOrNull() ?: Schedule(days = listOf())
         val newSchedule = newScheduleResult.getOrThrow()
+        val oldSchedule = updateWindow.normalizedOldSchedule(
+            old = oldScheduleResult.firstOrNull() ?: Schedule(days = listOf()),
+            new = newSchedule,
+            lastUpdate = lastUpdate
+        )
         val scheduleDiff = ComputedScheduleDiffOf(oldSchedule, newSchedule).value()
 
         schedules.deleteSchedule()
         schedules.save(newSchedule)
+        schedules.saveLastUpdate(LocalDate.now())
 
         return Result.success(scheduleDiff)
     }
