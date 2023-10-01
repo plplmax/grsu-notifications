@@ -2,7 +2,6 @@ package com.github.plplmax.notifications.update
 
 import com.github.plplmax.notifications.computed.ComputedScheduleDiffOf
 import com.github.plplmax.notifications.data.schedule.Schedules
-import com.github.plplmax.notifications.data.schedule.models.Schedule
 import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.time.NightTimeOf
@@ -40,7 +39,7 @@ class ScheduleDiffUpdateOf(
 
         val newSchedule = newScheduleResult.getOrThrow()
         val oldSchedule = updateWindow.normalizedOldSchedule(
-            old = oldScheduleResult.firstOrNull() ?: Schedule(days = listOf()),
+            old = oldScheduleResult.firstOrNull() ?: newSchedule,
             new = newSchedule,
             lastUpdate = lastUpdate
         )
