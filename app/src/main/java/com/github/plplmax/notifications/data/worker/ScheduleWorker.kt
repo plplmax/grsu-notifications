@@ -45,8 +45,8 @@ class ScheduleWorker(
             scheduleNotifications.save(diffNotification)
 
             ScheduleNotification(
-                title = resources.string(R.string.schedule_updated),
-                text = resources.string(R.string.tap_to_view_schedule)
+                title = resources.string(R.string.schedule_changed),
+                text = resources.string(R.string.tap_to_view_notifications)
             ).send(notificationChannel)
         }
 

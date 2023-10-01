@@ -19,13 +19,12 @@
     <string name="lets_try_again">Попробуем ещё раз…</string>
     <string name="schedule_is_synchronized">Расписание синхронизировано</string>
     <string name="how_application_works">Вы будете получать уведомления при изменении расписания текущей недели и следующих понедельника, вторника, среды.</string>
-    <string name="schedule_updated">Расписание обновлено</string>
-    <string name="tap_to_view_schedule">Нажмите для просмотра расписания</string>
+    <string name="tap_to_view_notifications">Нажмите для просмотра уведомлений</string>
     <string name="grsu_notifications">Уведомления ГрГУ</string>
     <string name="stay_up_to_date_on_your_schedule">Будьте в курсе изменений расписания ГрГУ!</string>
     <string name="get_started">Начать</string>
     <string name="welcome">Добро пожаловать</string>
-    <string name="schedule_changed">Расписание было обновлено</string>
+    <string name="schedule_changed">Расписание было изменено</string>
     <string name="notifications">Уведомления</string>
     <string name="diff">Разница</string>
     <string name="today">Сегодня</string>
