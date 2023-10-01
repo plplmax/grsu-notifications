@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.*
 import com.github.plplmax.notifications.centre.NotificationCentre
 import com.github.plplmax.notifications.data.Errors
+import com.github.plplmax.notifications.data.schedule.Schedules
 import com.github.plplmax.notifications.data.user.Users
 import com.github.plplmax.notifications.data.worker.ScheduleWorker
 import com.github.plplmax.notifications.ui.navigation.Routes
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class MainViewModel(
     private val users: Users,
+    private val schedules: Schedules,
     private val notificationCentre: NotificationCentre,
     private val workManager: WorkManager
 ) : ViewModel() {
@@ -86,6 +88,7 @@ class MainViewModel(
         return viewModelScope.async {
             try {
                 workManager.cancelUniqueWork(WORK_NAME).await()
+                schedules.deleteLastUpdate()
                 users.signOut()
                 initState()
                 true

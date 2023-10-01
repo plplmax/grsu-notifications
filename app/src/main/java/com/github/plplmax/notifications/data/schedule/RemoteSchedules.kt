@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
+import java.time.LocalDate
 
 class RemoteSchedules(
     private val client: OkHttpClient,
@@ -41,6 +42,18 @@ class RemoteSchedules(
     override suspend fun schedule(): List<Schedule> = listOf()
 
     override suspend fun deleteSchedule() {
+        // do nothing
+    }
+
+    override suspend fun lastUpdate(): LocalDate {
+        error("lastUpdate must not be invoked")
+    }
+
+    override suspend fun saveLastUpdate(date: LocalDate) {
+        // do nothing
+    }
+
+    override suspend fun deleteLastUpdate() {
         // do nothing
     }
 }

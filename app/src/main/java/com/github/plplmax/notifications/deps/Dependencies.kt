@@ -56,6 +56,7 @@ class Dependencies(context: Context) {
         LoggedSchedules(
             MappedSchedules(
                 LocalSchedules(
+                    context,
                     RemoteSchedules(httpClient),
                     database
                 )

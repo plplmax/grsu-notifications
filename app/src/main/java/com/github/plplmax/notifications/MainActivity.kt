@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity() {
         val deps = (application as App).deps
         MainViewModel(
             deps.users,
+            deps.schedules,
             deps.notificationCentre,
             WorkManager.getInstance(applicationContext)
         ).createFactory()
