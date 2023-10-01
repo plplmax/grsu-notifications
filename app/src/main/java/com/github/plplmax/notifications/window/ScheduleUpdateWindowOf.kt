@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit
 class ScheduleUpdateWindowOf(date: LocalDate) : ScheduleUpdateWindow {
     private val startDate: LocalDate = date
     private val endDate: LocalDate by lazy { startDate.plusDays(6) }
+    override val durationInDays: Long by lazy { startDate.until(endDate, ChronoUnit.DAYS) + 1 }
 
     override fun startDateAsString(formatter: DateTimeFormatter): String {
         return formatter.format(startDate)
@@ -24,7 +25,7 @@ class ScheduleUpdateWindowOf(date: LocalDate) : ScheduleUpdateWindow {
     ): Schedule {
         if (lastUpdate in startDate..endDate) return old
         val daysPassed = lastUpdate.until(startDate, ChronoUnit.DAYS)
-        if (daysPassed > startDate.until(endDate, ChronoUnit.DAYS)) return new
+        if (daysPassed >= durationInDays) return new
         val daysToAdd = ((daysPassed - 1)..0).map { endDate.minusDays(it).toString() }
             .mapNotNull { dateToAdd -> new.days.find { it.date == dateToAdd } }
         val normalizedOldDays = old.days.filter { it.date >= startDate.toString() } + daysToAdd
