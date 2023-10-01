@@ -6,9 +6,8 @@ import io.realm.annotations.RealmClass
 @RealmClass(embedded = true)
 open class TeacherRealm : RealmObject() {
     var fullname: String = ""
-    var post: String = ""
 }
 
 fun TeacherRealm.toData(): Teacher {
-    return Teacher(fullname = fullname, post = post)
+    return Teacher(fullname = fullname)
 }

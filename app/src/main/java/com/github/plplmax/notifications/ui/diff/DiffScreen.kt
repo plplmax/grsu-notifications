@@ -243,7 +243,7 @@ private val someSchedule = ScheduleDiff(
                 Lesson(
                     "11:40",
                     "13:00",
-                    Teacher("Maksim Ploski", "Android Developer"),
+                    Teacher("Maksim Ploski"),
                     "Examination (written)",
                     "Elegant Object principles",
                     "Ozheshko 22",
@@ -253,7 +253,7 @@ private val someSchedule = ScheduleDiff(
                 Lesson(
                     "18:15",
                     "19:35",
-                    Teacher("Maksim Ploski", "Android Developer"),
+                    Teacher("Maksim Ploski"),
                     "Examination (oral)",
                     "Elegant Object principles",
                     "Ozheshko 22",
