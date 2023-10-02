@@ -50,7 +50,7 @@ fun WelcomeScreen(navigateLogin: () -> Unit = {}) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(R.string.grsu_notifications),
+                    text = stringResource(R.string.app_name),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp),

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notifications</string>
+    <string name="app_name">GrSU Notifications</string>
     <string name="login">Login</string>
     <string name="enter_login">Enter the login</string>
     <string name="channel_name">Schedule</string>
@@ -19,7 +19,6 @@
     <string name="schedule_is_synchronized">The schedule is synchronized</string>
     <string name="how_application_works">You will receive notifications when the schedule changes for the current week and next Monday, Tuesday, Wednesday.</string>
     <string name="tap_to_view_notifications">Tap to view notifications</string>
-    <string name="grsu_notifications">GRSU Notifications</string>
     <string name="stay_up_to_date_on_your_schedule">Stay up-to-date on your university\'s schedule changes!</string>
     <string name="get_started">Get Started</string>
     <string name="welcome">Welcome</string>
