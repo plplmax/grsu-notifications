@@ -8,4 +8,5 @@ interface ScheduleNotifications {
     suspend fun deleteById(id: String)
     suspend fun notificationById(id: String): List<ScheduleDiffNotification>
     suspend fun notifications(): List<ShortScheduleDiffNotification>
+    suspend fun read(id: String)
 }

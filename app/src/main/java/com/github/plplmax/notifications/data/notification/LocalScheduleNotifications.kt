@@ -62,4 +62,17 @@ class LocalScheduleNotifications(
             }
         }
     }
+
+    override suspend fun read(id: String) {
+        return withContext(ioDispatcher) {
+            database.instance().use { realm ->
+                realm.executeTransaction {
+                    it.where<ScheduleDiffNotificationRealm>()
+                        .equalTo("id", ObjectId(id))
+                        .findFirst()
+                        ?.read = true
+                }
+            }
+        }
+    }
 }

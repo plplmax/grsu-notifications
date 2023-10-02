@@ -60,4 +60,16 @@ class LoggedScheduleNotifications(
             }
         }
     }
+
+    override suspend fun read(id: String) {
+        withContext(dispatcher) {
+            try {
+                origin.read(id)
+            } catch (e: Exception) {
+                currentCoroutineContext().ensureActive()
+                Timber.e(e)
+                throw e
+            }
+        }
+    }
 }

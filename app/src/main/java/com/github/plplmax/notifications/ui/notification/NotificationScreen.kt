@@ -106,7 +106,10 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}, showNavigation: () -
             when (state) {
                 is NotificationViewModel.UiState.Loaded -> NotificationContent(
                     notifications = state.notifications,
-                    onSelect = onSelect,
+                    onSelect = { date, id ->
+                        viewModel.readNotification(date, id)
+                        onSelect(id)
+                    },
                     onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() },
                     onRefresh = viewModel::loadNotifications
                 )
@@ -137,7 +140,7 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
 @Composable
 private fun NotificationContent(
     notifications: State<Map<LocalDate, List<ShortScheduleDiffNotification>>>,
-    onSelect: (id: String) -> Unit = {},
+    onSelect: (date: LocalDate, id: String) -> Unit = { _, _ -> },
     onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true },
     onRefresh: () -> Unit = {}
 ) {
@@ -165,7 +168,7 @@ private fun NotificationContent(
                     NotificationCard(
                         item = item,
                         modifier = Modifier.animateItemPlacement(),
-                        onSelect = { onSelect(item.id) },
+                        onSelect = { onSelect(date, item.id) },
                         onDelete = { onDelete(date, item.id) }
                     )
                 }

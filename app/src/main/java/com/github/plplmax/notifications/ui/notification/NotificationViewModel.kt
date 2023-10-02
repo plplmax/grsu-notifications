@@ -69,6 +69,24 @@ class NotificationViewModel(
         }
     }
 
+    fun readNotification(date: LocalDate, id: String) {
+        viewModelScope.launch {
+            try {
+                withContext(ioDispatcher) { notifications.read(id) }
+            } catch (_: Exception) {
+                // @todo think about handling exceptions
+            }
+            cachedNotifications.value = cachedNotifications.value.toMutableMap().apply {
+                computeIfPresent(date) { _, notifications ->
+                    notifications.map {
+                        if (it.id == id) it.copy(read = true)
+                        else it
+                    }
+                }
+            }
+        }
+    }
+
     sealed class UiState {
         // do not add data keyword for Error class because snackbar
         // with retry button does not appear due to possible
