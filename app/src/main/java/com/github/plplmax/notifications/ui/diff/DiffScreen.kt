@@ -53,6 +53,7 @@ import com.github.plplmax.notifications.data.schedule.models.Day
 import com.github.plplmax.notifications.data.schedule.models.Lesson
 import com.github.plplmax.notifications.data.schedule.models.ScheduleDiff
 import com.github.plplmax.notifications.data.schedule.models.Teacher
+import com.github.plplmax.notifications.ui.progress.ProgressIndicator
 import com.github.plplmax.notifications.ui.text.DateText
 import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
@@ -75,10 +76,9 @@ fun DiffScreen(id: String, onBack: () -> Unit) {
     Column {
         DiffTopAppBar(state = viewModel.state, onBack = onBack)
         when (val state = viewModel.state) {
-            // @todo show spinner while loading
             is DiffViewModel.UiState.Loaded -> DiffContent(state.notification.diff)
             is DiffViewModel.UiState.Error -> Text("Error occurred: ${state.text}")
-            is DiffViewModel.UiState.Loading -> Text("Loading...")
+            is DiffViewModel.UiState.Loading -> ProgressIndicator()
         }
     }
 }
