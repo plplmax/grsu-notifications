@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
@@ -139,12 +141,11 @@ private fun NotificationContent(
     onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true },
     onRefresh: () -> Unit = {}
 ) {
-    if (notifications.value.isEmpty()) {
-        NoNotificationsText()
-        return
-    }
-
     PullToRefresh(onRefresh = onRefresh) {
+        if (notifications.value.isEmpty()) {
+            NoNotificationsText()
+            return@PullToRefresh
+        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -192,7 +193,12 @@ private fun PullToRefresh(
 
 @Composable
 private fun NoNotificationsText() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        contentAlignment = Alignment.Center
+    ) {
         Text(text = stringResource(R.string.no_notifications_yet))
     }
 }
