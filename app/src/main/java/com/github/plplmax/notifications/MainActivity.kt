@@ -1,6 +1,7 @@
 package com.github.plplmax.notifications
 
 import android.os.Bundle
+import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -26,5 +27,9 @@ class MainActivity : ComponentActivity() {
                 MainScreen(viewModel)
             }
         }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return ev?.pointerCount == 1 && super.dispatchTouchEvent(ev)
     }
 }
