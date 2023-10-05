@@ -21,7 +21,7 @@ class LocalScheduleNotifications(
     override suspend fun save(notification: ScheduleDiffNotification) {
         withContext(ioDispatcher) {
             database.instance().use { realm ->
-                realm.executeTransaction { it.insert(notification.toRealm()) }
+                realm.executeTransaction { it.insertOrUpdate(notification.toRealm()) }
             }
         }
     }
@@ -64,15 +64,6 @@ class LocalScheduleNotifications(
     }
 
     override suspend fun read(id: String) {
-        return withContext(ioDispatcher) {
-            database.instance().use { realm ->
-                realm.executeTransaction {
-                    it.where<ScheduleDiffNotificationRealm>()
-                        .equalTo("id", ObjectId(id))
-                        .findFirst()
-                        ?.read = true
-                }
-            }
-        }
+        notificationById(id).map { it.copy(read = true) }.forEach { save(it) }
     }
 }

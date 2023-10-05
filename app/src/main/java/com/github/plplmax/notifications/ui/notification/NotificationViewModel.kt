@@ -73,16 +73,16 @@ class NotificationViewModel(
         viewModelScope.launch {
             try {
                 withContext(ioDispatcher) { notifications.read(id) }
-            } catch (_: Exception) {
-                // @todo think about handling exceptions
-            }
-            cachedNotifications.value = cachedNotifications.value.toMutableMap().apply {
-                computeIfPresent(date) { _, notifications ->
-                    notifications.map {
-                        if (it.id == id) it.copy(read = true)
-                        else it
+                cachedNotifications.value = cachedNotifications.value.toMutableMap().apply {
+                    computeIfPresent(date) { _, notifications ->
+                        notifications.map {
+                            if (it.id == id) it.copy(read = true)
+                            else it
+                        }
                     }
                 }
+            } catch (_: Exception) {
+                // @todo think about handling exceptions
             }
         }
     }
