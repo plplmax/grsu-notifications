@@ -26,8 +26,9 @@ class ScheduleUpdateWindowOf(date: LocalDate) : ScheduleUpdateWindow {
         if (lastUpdate in startDate..endDate) return old
         val daysPassed = lastUpdate.until(startDate, ChronoUnit.DAYS)
         if (daysPassed >= durationInDays) return new
-        val daysToAdd = ((daysPassed - 1)..0).map { endDate.minusDays(it).toString() }
+        val daysToAdd = (0 until daysPassed).map { endDate.minusDays(it).toString() }
             .mapNotNull { dateToAdd -> new.days.find { it.date == dateToAdd } }
+            .reversed()
         val normalizedOldDays = old.days.filter { it.date >= startDate.toString() } + daysToAdd
         return Schedule(days = normalizedOldDays)
     }

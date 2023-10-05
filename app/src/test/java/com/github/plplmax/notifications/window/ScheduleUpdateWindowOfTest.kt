@@ -54,4 +54,22 @@ class ScheduleUpdateWindowOfTest {
 
         assertEquals(new, result)
     }
+
+    @Test
+    fun normalizesOldScheduleWithThreeDaysShift() {
+        val lastUpdate = today.minusDays(3)
+        val windowEnd = today.plusDays(scheduleWindow.durationInDays - 1)
+        val old = Schedule(listOf(Day(lastUpdate.toString(), listOf(firstLesson))))
+        val new = Schedule(
+            listOf(
+                Day(windowEnd.minusDays(2).toString(), listOf(firstLesson)),
+                Day(windowEnd.minusDays(1).toString(), listOf(firstLesson)),
+                Day(windowEnd.toString(), listOf(firstLesson))
+            )
+        )
+
+        val result = scheduleWindow.normalizedOldSchedule(old, new, lastUpdate)
+
+        assertEquals(new, result)
+    }
 }
