@@ -30,7 +30,7 @@ class NotificationPagingSource(
     override fun getRefreshKey(state: PagingState<Date, ShortScheduleDiffNotification>): Date? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestItemToPosition(anchorPosition)?.let { Date.from(it.created.toInstant()) }
-        }.also { println("getRefreshKey: $it") }
+        }
     }
 
     override suspend fun load(params: LoadParams<Date>): LoadResult<Date, ShortScheduleDiffNotification> {
