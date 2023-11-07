@@ -384,7 +384,7 @@ private fun NotificationContentPreview() {
         PagingData.from(
             data = notificationsPreview,
             sourceLoadStates = LoadStates(
-                LoadState.Loading,
+                LoadState.NotLoading(false),
                 LoadState.NotLoading(false),
                 LoadState.NotLoading(false)
             )
