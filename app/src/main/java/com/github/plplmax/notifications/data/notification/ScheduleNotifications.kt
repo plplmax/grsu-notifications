@@ -1,8 +1,9 @@
 package com.github.plplmax.notifications.data.notification
 
+import com.github.plplmax.notifications.data.SearchResult
 import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotification
 import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
-import com.github.plplmax.notifications.ui.notification.Comparison
+import com.github.plplmax.notifications.data.Comparison
 import io.realm.Sort
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
@@ -18,7 +19,7 @@ interface ScheduleNotifications {
         limit: Long,
         comparison: Comparison,
         sort: Sort
-    ): List<ShortScheduleDiffNotification>
+    ): SearchResult<ShortScheduleDiffNotification>
 
     fun changesetFlow(): Flow<Boolean>
 }

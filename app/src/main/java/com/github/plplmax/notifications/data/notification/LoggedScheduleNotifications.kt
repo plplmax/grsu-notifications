@@ -1,8 +1,9 @@
 package com.github.plplmax.notifications.data.notification
 
+import com.github.plplmax.notifications.data.SearchResult
 import com.github.plplmax.notifications.data.notification.models.ScheduleDiffNotification
 import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
-import com.github.plplmax.notifications.ui.notification.Comparison
+import com.github.plplmax.notifications.data.Comparison
 import io.realm.Sort
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +72,7 @@ class LoggedScheduleNotifications(
         limit: Long,
         comparison: Comparison,
         sort: Sort
-    ): List<ShortScheduleDiffNotification> {
+    ): SearchResult<ShortScheduleDiffNotification> {
         return withContext(dispatcher) {
             try {
                 origin.notifications(date, limit, comparison, sort)
