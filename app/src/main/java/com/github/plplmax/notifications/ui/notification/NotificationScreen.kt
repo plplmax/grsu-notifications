@@ -1,9 +1,6 @@
 package com.github.plplmax.notifications.ui.notification
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.view.HapticFeedbackConstants
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -15,17 +12,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -44,7 +40,6 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,24 +52,32 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.github.plplmax.notifications.App
 import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
 import com.github.plplmax.notifications.ui.navigation.Routes
-import com.github.plplmax.notifications.ui.progress.ProgressIndicator
-import com.github.plplmax.notifications.ui.refresh.PullRefreshIndicator
-import com.github.plplmax.notifications.ui.refresh.pullRefresh
-import com.github.plplmax.notifications.ui.refresh.rememberPullRefreshState
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import com.github.plplmax.notifications.ui.snackbar.Snackbar
 import com.github.plplmax.notifications.ui.text.DateText
 import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.fade
+import com.google.accompanist.placeholder.placeholder
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +93,6 @@ fun NotificationTopAppBar(showNavigation: () -> Unit) {
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NotificationScreen(onSelect: (id: String) -> Unit = {}, showNavigation: () -> Unit) {
     val context = LocalContext.current
@@ -100,139 +102,165 @@ fun NotificationScreen(onSelect: (id: String) -> Unit = {}, showNavigation: () -
     val viewModel = viewModel(initializer = {
         NotificationViewModel(notifications = app.deps.scheduleNotifications)
     })
+    val notifications = viewModel.paging.collectAsLazyPagingItems()
+
     Column {
         NotificationTopAppBar(showNavigation)
-        AnimatedContent(targetState = viewModel.uiState) { state ->
-            when (state) {
-                is NotificationViewModel.UiState.Loaded -> NotificationContent(
-                    notifications = state.notifications,
-                    onSelect = { date, id ->
-                        viewModel.readNotification(date, id)
-                        onSelect(id)
-                    },
-                    onDelete = { date, id -> viewModel.deleteNotificationAsync(date, id).await() },
-                    onRefresh = viewModel::loadNotifications
-                )
-
-                is NotificationViewModel.UiState.Loading -> ProgressIndicator()
-                is NotificationViewModel.UiState.Error -> ErrorContent(
-                    message = stringResource(state.message),
-                    onRetry = viewModel::loadNotifications
-                )
-            }
-        }
+        NotificationContent(
+            notifications = notifications,
+            onSelect = { id: String ->
+                viewModel.readNotification(id) // @todo move reading notification to the DiffScreen
+                onSelect(id)
+            },
+            onDelete = { id: String -> viewModel.deleteNotificationAsync(id).await() }
+        )
     }
 }
 
 @Composable
-private fun ErrorContent(message: String, onRetry: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+private fun ErrorContent(modifier: Modifier = Modifier, onRetry: () -> Unit) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(text = stringResource(R.string.failed_to_load_notifications))
+        Spacer(modifier = Modifier.height(6.dp))
+        Button(onClick = onRetry) {
+            Text(text = stringResource(R.string.retry))
+        }
     }
-    Snackbar(
-        message = message,
-        actionLabel = stringResource(R.string.retry),
-        onActionPerformed = onRetry
-    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NotificationContent(
-    notifications: State<Map<LocalDate, List<ShortScheduleDiffNotification>>>,
-    onSelect: (date: LocalDate, id: String) -> Unit = { _, _ -> },
-    onDelete: suspend (date: LocalDate, id: String) -> Boolean = { _, _ -> true },
-    onRefresh: () -> Unit = {}
+    notifications: LazyPagingItems<ShortScheduleDiffNotification>,
+    onSelect: (id: String) -> Unit = { _ -> },
+    onDelete: suspend (id: String) -> Boolean = { true }
 ) {
-    PullToRefresh(onRefresh = onRefresh) {
-        if (notifications.value.isEmpty()) {
-            NoNotificationsText()
-            return@PullToRefresh
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-            contentPadding = PaddingValues(all = 14.dp)
-        ) {
-            for ((date, notifs) in notifications.value) {
-                if (notifs.isEmpty()) continue
-                // @todo maybe invoke date.toString() as key
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        contentPadding = PaddingValues(all = 14.dp)
+    ) {
+        var lastShownDate: LocalDate? = null
+
+        repeat(times = notifications.itemCount) { index ->
+            val notification = notifications.peek(index) ?: kotlin.run {
+                item(key = notifications.itemKey { it.id }(index)) {
+                    NotificationCard(item = notifications[index])
+                }
+                return@repeat
+            }
+            val date = notification.created.toLocalDate()
+
+            if (date != lastShownDate) {
                 item(key = date) {
                     DateText(
                         date = date,
                         modifier = Modifier.animateItemPlacement()
                     )
                 }
-                items(items = notifs, key = { it.id }) { item ->
+                lastShownDate = date
+            }
+
+            item(key = notification.id) {
+                val notificationItem = notifications[index] ?: return@item
+                SwipeToDismissNotification(
+                    modifier = Modifier.animateItemPlacement(),
+                    onDismiss = { onDelete(notificationItem.id) }
+                ) {
                     NotificationCard(
-                        item = item,
-                        modifier = Modifier.animateItemPlacement(),
-                        onSelect = { onSelect(date, item.id) },
-                        onDelete = { onDelete(date, item.id) }
-                    )
+                        item = notificationItem,
+                        onSelect = { onSelect(notificationItem.id) })
+                }
+            }
+        }
+
+        if (notifications.itemCount == 0) {
+            when (notifications.loadState.refresh) {
+                is LoadState.Loading -> {
+                    repeat(times = 10) {
+                        item { NotificationCard() }
+                    }
+                }
+
+                is LoadState.NotLoading -> {
+                    item { NoNotificationsText(modifier = Modifier.fillParentMaxSize()) }
+                }
+
+                is LoadState.Error -> {
+                    item {
+                        ErrorContent(
+                            modifier = Modifier.fillParentMaxSize(),
+                            onRetry = notifications::retry
+                        )
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-private fun PullToRefresh(
-    onRefresh: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    val pullRefreshState = rememberPullRefreshState(refreshing = false, onRefresh = onRefresh)
-
-    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
-        content()
-        PullRefreshIndicator(
-            refreshing = false,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
-    }
-}
-
-@Composable
-private fun NoNotificationsText() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        contentAlignment = Alignment.Center
+    val state = notifications.loadState
+    if (state.prepend is LoadState.Error ||
+        state.append is LoadState.Error ||
+        state.refresh is LoadState.Error && notifications.itemCount > 0
     ) {
-        Text(text = stringResource(R.string.no_notifications_yet))
+        Snackbar(
+            message = stringResource(R.string.failed_to_load_notifications),
+            actionLabel = stringResource(R.string.retry),
+            onActionPerformed = notifications::retry
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NotificationCard(
-    item: ShortScheduleDiffNotification,
-    modifier: Modifier = Modifier,
-    onSelect: () -> Unit = {},
-    onDelete: suspend () -> Boolean = { true }
+    item: ShortScheduleDiffNotification? = null,
+    onSelect: () -> Unit = {}
 ) {
-    SwipeToDismissNotification(modifier = modifier, onDismiss = onDelete) {
-        Card(
-            onClick = onSelect,
-            colors = colorsForNotificationCard(item.read)
-        ) {
-            Column(modifier = Modifier.padding(all = 18.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    NotificationIcon(item.read)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(id = R.string.schedule_changed))
-                }
-                TimeText(
-                    time = item.created.toLocalTime(),
-                    modifier = Modifier
-                        .padding(top = 14.dp)
-                        .align(Alignment.End)
+    val placeholderModifier = Modifier.placeholder(
+        visible = item == null,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.background.copy(alpha = 0.3f),
+        highlight = PlaceholderHighlight.fade(
+            highlightColor = MaterialTheme.colorScheme.background.copy(alpha = 0.4f)
+        )
+    )
+    Card(
+        onClick = onSelect,
+        colors = colorsForNotificationCard(item?.read ?: false)
+    ) {
+        Column(modifier = Modifier.padding(all = 18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                NotificationIcon(modifier = placeholderModifier, read = item?.read ?: false)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.schedule_changed),
+                    modifier = placeholderModifier
                 )
             }
+            TimeText(
+                time = item?.created?.toLocalTime() ?: LocalTime.now(),
+                modifier = Modifier
+                    .padding(top = 14.dp)
+                    .align(Alignment.End)
+                    .then(placeholderModifier)
+            )
         }
+    }
+}
+
+@Composable
+private fun NoNotificationsText(modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Text(
+            text = stringResource(R.string.no_notifications_yet),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -329,8 +357,8 @@ private fun SwipeToDismissBackground(dismissState: DismissState) {
 }
 
 @Composable
-private fun NotificationIcon(read: Boolean = false) {
-    Box {
+private fun NotificationIcon(modifier: Modifier = Modifier, read: Boolean = false) {
+    Box(modifier = modifier) {
         Icon(Icons.Default.Notifications, contentDescription = null)
         if (!read) {
             Box(
@@ -349,37 +377,30 @@ private fun NotificationIcon(read: Boolean = false) {
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Preview
 @Composable
 private fun NotificationContentPreview() {
+    val items = flowOf(
+        PagingData.from(
+            data = notificationsPreview,
+            sourceLoadStates = LoadStates(
+                LoadState.NotLoading(false),
+                LoadState.NotLoading(false),
+                LoadState.NotLoading(false)
+            )
+        )
+    ).collectAsLazyPagingItems()
     GrsuNotificationsTheme {
         Surface {
-            NotificationContent(
-                notifications = remember {
-                    mutableStateOf(
-                        mapOf(
-                            LocalDate.now() to listOf(
-                                ShortScheduleDiffNotification(
-                                    "1",
-                                    false,
-                                    ZonedDateTime.now().minusHours(5)
-                                ),
-                                ShortScheduleDiffNotification("2", true, ZonedDateTime.now()),
-                            ),
-                            LocalDate.now().minusDays(1) to listOf(
-                                ShortScheduleDiffNotification("3", false, ZonedDateTime.now()),
-                                ShortScheduleDiffNotification("4", true, ZonedDateTime.now()),
-                            ),
-                            LocalDate.now().minusDays(2) to listOf(
-                                ShortScheduleDiffNotification("5", false, ZonedDateTime.now()),
-                            ),
-                            LocalDate.now().minusYears(1) to listOf(
-                                ShortScheduleDiffNotification("6", false, ZonedDateTime.now()),
-                            )
-                        )
-                    )
-                }
-            )
+            NotificationContent(notifications = items)
         }
     }
+}
+
+private val notificationsPreview = List(size = 10) { index ->
+    ShortScheduleDiffNotification(
+        id = "$index",
+        read = index % 2 == 0,
+        created = ZonedDateTime.now().minusDays(index.toLong())
+    )
 }
