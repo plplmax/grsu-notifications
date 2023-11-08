@@ -1,7 +1,8 @@
-package com.github.plplmax.notifications.deps
+package com.github.plplmax.notifications.di
 
-import android.content.Context
 import androidx.core.app.NotificationManagerCompat
+import androidx.work.WorkManager
+import com.github.plplmax.notifications.MainViewModel
 import com.github.plplmax.notifications.centre.AppNotificationCentre
 import com.github.plplmax.notifications.centre.NotificationCentre
 import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
@@ -21,66 +22,80 @@ import com.github.plplmax.notifications.data.user.LoggedUsers
 import com.github.plplmax.notifications.data.user.MappedUsers
 import com.github.plplmax.notifications.data.user.RemoteUsers
 import com.github.plplmax.notifications.data.user.Users
+import com.github.plplmax.notifications.data.worker.ScheduleWorker
 import com.github.plplmax.notifications.resources.AppResources
 import com.github.plplmax.notifications.resources.Resources
+import com.github.plplmax.notifications.ui.diff.DiffViewModel
+import com.github.plplmax.notifications.ui.notification.NotificationViewModel
 import com.github.plplmax.notifications.update.ScheduleDiffUpdate
 import com.github.plplmax.notifications.update.ScheduleDiffUpdateOf
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.workmanager.dsl.workerOf
+import org.koin.core.module.Module
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 import timber.log.Timber
 
-class Dependencies(context: Context) {
-    private val httpClient: OkHttpClient by lazy {
+val appModule: Module = module {
+    single {
         OkHttpClient.Builder().addInterceptor(
             HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }.setLevel(
                 HttpLoggingInterceptor.Level.BASIC
             )
         ).build()
     }
-
-    val resources: Resources by lazy { AppResources(context) }
-
-    val users: Users by lazy {
+    single { WorkManager.getInstance(androidContext()) }
+    singleOf(::RealmDatabase) bind Database::class
+    singleOf(::AppResources) bind Resources::class
+    factory {
         LoggedUsers(
             MappedUsers(
                 LocalUsers(
-                    context,
-                    RemoteUsers(httpClient),
-                    database
+                    context = androidContext(),
+                    origin = RemoteUsers(client = get()),
+                    database = get()
                 )
             )
         )
-    }
-
-    val schedules: Schedules by lazy {
+    } bind Users::class
+    factory {
         LoggedSchedules(
             MappedSchedules(
                 LocalSchedules(
-                    context,
-                    RemoteSchedules(httpClient),
-                    database
+                    context = androidContext(),
+                    origin = RemoteSchedules(client = get()),
+                    database = get()
                 )
             )
         )
-    }
-
-    val scheduleNotifications: ScheduleNotifications by lazy {
+    } bind Schedules::class
+    factory {
         LoggedScheduleNotifications(
-            LocalScheduleNotifications(database)
+            LocalScheduleNotifications(database = get())
+        )
+    } bind ScheduleNotifications::class
+    factory {
+        AppNotificationCentre(
+            context = androidContext(),
+            manager = NotificationManagerCompat.from(androidContext())
+        )
+    } bind NotificationCentre::class
+    factoryOf(::ScheduleDiffUpdateOf) bind ScheduleDiffUpdate::class
+    factoryOf(::ScheduleNotificationChannelOf) bind ScheduleNotificationChannel::class
+    workerOf(::ScheduleWorker)
+    viewModel {
+        MainViewModel(
+            users = get(),
+            schedules = get(),
+            notificationCentre = get(),
+            workManager = get()
         )
     }
-
-    val scheduleDiffUpdate: ScheduleDiffUpdate by lazy {
-        ScheduleDiffUpdateOf(users, schedules)
-    }
-
-    val notificationCentre: NotificationCentre by lazy {
-        AppNotificationCentre(context, NotificationManagerCompat.from(context))
-    }
-
-    val scheduleNotificationChannel: ScheduleNotificationChannel by lazy {
-        ScheduleNotificationChannelOf(context, notificationCentre)
-    }
-
-    private val database: Database by lazy { RealmDatabase() }
+    viewModel { NotificationViewModel(notifications = get()) }
+    viewModel { DiffViewModel(scheduleNotifications = get()) }
 }

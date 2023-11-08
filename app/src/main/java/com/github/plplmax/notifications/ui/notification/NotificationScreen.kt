@@ -55,15 +55,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.github.plplmax.notifications.App
-import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.notification.models.ShortScheduleDiffNotification
 import com.github.plplmax.notifications.ui.navigation.Routes
@@ -76,6 +73,7 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.fade
 import com.google.accompanist.placeholder.placeholder
 import kotlinx.coroutines.flow.flowOf
+import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -94,14 +92,11 @@ fun NotificationTopAppBar(showNavigation: () -> Unit) {
 }
 
 @Composable
-fun NotificationScreen(onSelect: (id: String) -> Unit = {}, showNavigation: () -> Unit) {
-    val context = LocalContext.current
-    val app = remember(context) {
-        ((context as MainActivity).application) as App
-    }
-    val viewModel = viewModel(initializer = {
-        NotificationViewModel(notifications = app.deps.scheduleNotifications)
-    })
+fun NotificationScreen(
+    viewModel: NotificationViewModel = koinViewModel(),
+    onSelect: (id: String) -> Unit = {},
+    showNavigation: () -> Unit
+) {
     val notifications = viewModel.paging.collectAsLazyPagingItems()
 
     Column {
