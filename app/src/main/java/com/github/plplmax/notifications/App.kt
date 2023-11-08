@@ -2,20 +2,27 @@ package com.github.plplmax.notifications
 
 import android.app.Application
 import android.os.Build
-import androidx.work.Configuration
-import com.github.plplmax.notifications.channel.ScheduleNotificationChannelOf
+import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
 import com.github.plplmax.notifications.crashlytics.CrashlyticsTree
-import com.github.plplmax.notifications.data.worker.ScheduleWorkerFactory
-import com.github.plplmax.notifications.deps.Dependencies
+import com.github.plplmax.notifications.di.appModule
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import org.koin.android.ext.android.get
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.context.startKoin
 import timber.log.Timber
 
-class App : Application(), Configuration.Provider {
-    val deps: Dependencies by lazy { Dependencies(applicationContext) }
-
+class App : Application() {
     override fun onCreate() {
         super.onCreate()
+        startKoin {
+            androidLogger()
+            androidContext(applicationContext)
+            modules(appModule)
+            workManagerFactory()
+        }
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         } else {
@@ -27,10 +34,7 @@ class App : Application(), Configuration.Provider {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ScheduleNotificationChannelOf(
-                applicationContext,
-                deps.notificationCentre
-            ).create()
+            get<ScheduleNotificationChannel>().create()
         }
     }
 
@@ -42,16 +46,5 @@ class App : Application(), Configuration.Provider {
                 .compactOnLaunch()
                 .build()
         Realm.setDefaultConfiguration(realmConfig)
-    }
-
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder().setWorkerFactory(
-            ScheduleWorkerFactory(
-                deps.scheduleDiffUpdate,
-                deps.scheduleNotifications,
-                deps.scheduleNotificationChannel,
-                deps.resources
-            )
-        ).build()
     }
 }

@@ -14,9 +14,10 @@ import com.github.plplmax.notifications.ui.navigation.AppNavHost
 import com.github.plplmax.notifications.ui.navigation.AppNavigationDrawer
 import com.github.plplmax.notifications.ui.snackbar.LocalSnackbarState
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(viewModel: MainViewModel = koinViewModel()) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

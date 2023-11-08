@@ -30,13 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -44,9 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.ConfigurationCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.plplmax.notifications.App
-import com.github.plplmax.notifications.MainActivity
 import com.github.plplmax.notifications.R
 import com.github.plplmax.notifications.data.schedule.enums.ModificationType
 import com.github.plplmax.notifications.data.schedule.models.Day
@@ -58,18 +53,12 @@ import com.github.plplmax.notifications.ui.text.DateText
 import com.github.plplmax.notifications.ui.text.TimeText
 import com.github.plplmax.notifications.ui.theme.GrsuNotificationsTheme
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun DiffScreen(id: String, onBack: () -> Unit) {
-    val context = LocalContext.current
-    val app = remember(context) {
-        ((context as MainActivity).application) as App
-    }
-    val viewModel = viewModel(initializer = {
-        DiffViewModel(app.deps.scheduleNotifications)
-    })
+fun DiffScreen(viewModel: DiffViewModel = koinViewModel(), id: String, onBack: () -> Unit) {
     LaunchedEffect(id) {
         viewModel.loadScheduleById(id)
     }
