@@ -20,14 +20,14 @@ class ScheduleWorker(
     private val notificationChannel: ScheduleNotificationChannel,
     private val resources: Resources
 ) : CoroutineWorker(context, workerParams) {
-    private val errorNotificationExists: Boolean
-        get() = this.runAttemptCount > 0
+    private val showNotificationWithFailure: Boolean
+        get() = runAttemptCount == 3
 
     override suspend fun doWork(): Result {
         val scheduleDiffResult = diffUpdate.diff()
 
         if (scheduleDiffResult.isFailure) {
-            if (!errorNotificationExists) {
+            if (showNotificationWithFailure) {
                 ScheduleNotification(
                     title = resources.string(R.string.schedule_update_error),
                     text = resources.string(R.string.lets_try_again),
