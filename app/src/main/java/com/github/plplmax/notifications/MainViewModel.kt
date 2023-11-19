@@ -51,6 +51,7 @@ class MainViewModel(
             } else {
                 startDestination = Routes.Notifications
                 state = UiState.Success(login)
+                enqueuePeriodicWork(ExistingPeriodicWorkPolicy.KEEP)
             }
         }
     }
@@ -63,23 +64,8 @@ class MainViewModel(
             userId.onSuccess { id ->
                 users.saveId(id)
                 users.saveLogin(login)
-                val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-
-                try {
-                    workManager.enqueueUniquePeriodicWork(
-                        WORK_NAME,
-                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-                        PeriodicWorkRequestBuilder<ScheduleWorker>(
-                            30, TimeUnit.MINUTES
-                        ).setConstraints(constraints).build()
-                    ).await()
-                    initState()
-                } catch (_: Exception) {
-                    currentCoroutineContext().ensureActive()
-                    state = UiState.Failure(R.string.something_went_wrong)
-                }
+                enqueuePeriodicWork(ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE)
+                initState()
             }
         }
     }
@@ -97,6 +83,16 @@ class MainViewModel(
                 false
             }
         }
+    }
+
+    private fun enqueuePeriodicWork(policy: ExistingPeriodicWorkPolicy) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = PeriodicWorkRequestBuilder<ScheduleWorker>(30, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueueUniquePeriodicWork(WORK_NAME, policy, request)
     }
 
     private fun stateForError(error: Throwable): UiState {
