@@ -23,14 +23,25 @@ class ScheduleWorker(
     private val showNotificationWithFailure: Boolean
         get() = runAttemptCount == 3
 
+    private val shouldWorkerFail: Boolean
+        get() = runAttemptCount == 5
+
     override suspend fun doWork(): Result {
         val scheduleDiffResult = diffUpdate.diff()
 
         if (scheduleDiffResult.isFailure) {
+            if (shouldWorkerFail) {
+                ScheduleNotification(
+                    title = resources.string(R.string.synchronization_has_been_postponed),
+                    text = resources.string(R.string.the_problems_were_not_solved),
+                    type = NotificationType.FAILED
+                ).send(notificationChannel)
+                return Result.failure()
+            }
             if (showNotificationWithFailure) {
                 ScheduleNotification(
-                    title = resources.string(R.string.schedule_update_error),
-                    text = resources.string(R.string.lets_try_again),
+                    title = resources.string(R.string.synchronization_failed),
+                    text = resources.string(R.string.we_will_try_again),
                     type = NotificationType.FAILED
                 ).send(notificationChannel)
             }

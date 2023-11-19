@@ -15,8 +15,6 @@
     <string name="problems_getting_notifications_dialog">Некоторые производители пытаются любыми способами продлить время аккумулятора своих смартфонов.\n\nВсё дошло до того, что производители изменили операционную систему Android так, что она не даёт возможности работать приложениям в фоновом режиме, пока пользователи не изменят некоторые настройки смартфона.\n\nЕсли Вы столкнулись с проблемой, что расписание изменяется, а Вам не приходят уведомления об этом, то рекомендуется сделать шаги в разделе “Solution“ на экране, который Вы увидите при нажатии кнопки “Продолжить“.</string>
     <string name="_continue">Продолжить</string>
     <string name="back">Назад</string>
-    <string name="schedule_update_error">Ошибка обновления расписания</string>
-    <string name="lets_try_again">Попробуем ещё раз…</string>
     <string name="schedule_is_synchronized">Расписание синхронизировано</string>
     <string name="how_application_works">Вы будете получать уведомления при изменении расписания текущей недели и следующих понедельника, вторника, среды.</string>
     <string name="tap_to_view_notifications">Нажмите для просмотра уведомлений</string>
@@ -33,4 +31,8 @@
     <string name="go_back">Вернуться назад</string>
     <string name="sign_in">Войти</string>
     <string name="sign_out">Выйти</string>
+    <string name="synchronization_has_been_postponed">Синхронизация была отложена</string>
+    <string name="the_problems_were_not_solved">Проблемы не были решены после нескольких попыток</string>
+    <string name="synchronization_failed">Сбой синхронизации</string>
+    <string name="we_will_try_again">Мы попробуем ещё раз</string>
 </resources>
