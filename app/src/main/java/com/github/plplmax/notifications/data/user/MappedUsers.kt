@@ -7,10 +7,7 @@ class MappedUsers(private val origin: Users) : Users by origin {
         return origin.idByLogin(login)
             .fold(
                 onSuccess = { Result.success(it) },
-                onFailure = { e ->
-                    val exception = Errors.fromExceptionType(e).toException()
-                    Result.failure(exception)
-                }
+                onFailure = { e -> Result.failure(Errors.from(e)) }
             )
             .mapCatching { userId ->
                 if (userId == 0) error(Errors.INVALID_LOGIN)

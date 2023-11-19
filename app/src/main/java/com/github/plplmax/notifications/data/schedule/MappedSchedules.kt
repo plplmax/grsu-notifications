@@ -8,10 +8,7 @@ class MappedSchedules(private val origin: Schedules) : Schedules by origin {
         return origin.onWeek(userId, startDate, endDate)
             .fold(
                 onSuccess = { Result.success(it) },
-                onFailure = { e ->
-                    val exception = Errors.fromExceptionType(e).toException()
-                    Result.failure(exception)
-                }
+                onFailure = { e -> Result.failure(Errors.from(e)) }
             )
     }
 }
