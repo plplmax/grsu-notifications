@@ -24,7 +24,7 @@ class ScheduleWorker(
         get() = runAttemptCount == 3
 
     private val shouldWorkerFail: Boolean
-        get() = runAttemptCount == 5
+        get() = runAttemptCount >= 5
 
     override suspend fun doWork(): Result {
         val scheduleDiffResult = diffUpdate.diff()
