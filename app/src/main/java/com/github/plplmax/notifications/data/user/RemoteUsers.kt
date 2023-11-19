@@ -1,29 +1,34 @@
 package com.github.plplmax.notifications.data.user
 
-import com.github.plplmax.notifications.data.Constants
+import com.github.plplmax.notifications.data.toStringForLogging
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
 
 class RemoteUsers(
-    private val client: OkHttpClient,
+    private val client: HttpClient,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Users {
     override suspend fun idByLogin(login: String): Result<Int> {
         return withContext(dispatcher) {
-            kotlin.runCatching {
-                val request = Request.Builder()
-                    .url("${Constants.BASE_URL}/getStudent?login=$login")
-                    .build()
-
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                    JSONObject(response.body!!.string()).getInt("id")
-                }
+            try {
+                val response = client.get("getStudent") { parameter("login", login) }
+                if (!response.status.isSuccess()) throw IOException("Unexpected code ${response.toStringForLogging()}")
+                val body = response.bodyAsText()
+                val id = JSONObject(body).getInt("id")
+                Result.success(id)
+            } catch (e: Exception) {
+                currentCoroutineContext().ensureActive()
+                Result.failure(e)
             }
         }
     }

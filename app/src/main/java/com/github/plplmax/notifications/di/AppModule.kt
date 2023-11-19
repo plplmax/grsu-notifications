@@ -7,6 +7,7 @@ import com.github.plplmax.notifications.centre.AppNotificationCentre
 import com.github.plplmax.notifications.centre.NotificationCentre
 import com.github.plplmax.notifications.channel.ScheduleNotificationChannel
 import com.github.plplmax.notifications.channel.ScheduleNotificationChannelOf
+import com.github.plplmax.notifications.data.Constants
 import com.github.plplmax.notifications.data.database.Database
 import com.github.plplmax.notifications.data.database.RealmDatabase
 import com.github.plplmax.notifications.data.notification.LocalScheduleNotifications
@@ -29,8 +30,13 @@ import com.github.plplmax.notifications.ui.diff.DiffViewModel
 import com.github.plplmax.notifications.ui.notification.NotificationViewModel
 import com.github.plplmax.notifications.update.ScheduleDiffUpdate
 import com.github.plplmax.notifications.update.ScheduleDiffUpdateOf
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.workmanager.dsl.workerOf
@@ -43,12 +49,21 @@ import timber.log.Timber
 
 val appModule: Module = module {
     single {
-        OkHttpClient.Builder().addInterceptor(
-            HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }.setLevel(
-                HttpLoggingInterceptor.Level.BASIC
-            )
-        ).build()
+        HttpClient(Android) {
+            defaultRequest {
+                url(Constants.BASE_URL)
+            }
+            install(Logging) {
+                level = LogLevel.INFO
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        Timber.tag("Ktor").d(message)
+                    }
+                }
+            }
+        }
     }
+    single { Json { ignoreUnknownKeys = true } }
     single { WorkManager.getInstance(androidContext()) }
     singleOf(::RealmDatabase) bind Database::class
     singleOf(::AppResources) bind Resources::class
@@ -68,7 +83,7 @@ val appModule: Module = module {
             MappedSchedules(
                 LocalSchedules(
                     context = androidContext(),
-                    origin = RemoteSchedules(client = get()),
+                    origin = RemoteSchedules(client = get(), json = get()),
                     database = get()
                 )
             )

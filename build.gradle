@@ -3,6 +3,7 @@ buildscript {
         kotlin_version = '1.9.10'
         compose_version = '1.4.3'
         agp_version = '8.1.4'
+        ktor_version = '2.3.6'
     }
     repositories {
         mavenCentral()
