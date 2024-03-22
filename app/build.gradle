@@ -91,7 +91,7 @@ dependencies {
     implementation "io.ktor:ktor-client-logging:$ktor_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1"
     implementation "org.slf4j:slf4j-android:1.7.36"
-    implementation platform("com.google.firebase:firebase-bom:32.6.0")
+    implementation platform("com.google.firebase:firebase-bom:32.8.0")
     testImplementation "androidx.test.ext:junit-ktx:1.1.5"
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito.kotlin:mockito-kotlin:5.1.0"
